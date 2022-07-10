@@ -13,11 +13,18 @@
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
-
+        <Grid.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="Dictionary1.xaml"/>
+                </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+        </Grid.Resources>
         <!-- Here we create our GraphArea layout container wrapped into the Zoombox for vast zooming capabilities.
              This is the standard approach for GraphX.-->
         <controls:ZoomControl x:Name="zoomctrl" Grid.Row="1">
             <models:GraphAreaExample x:Name="Area"/>
         </controls:ZoomControl>
+        <Button Grid.Column="1" Width="100" Height="40" Click="Button_Click">Current</Button>
     </Grid>
 </Window>

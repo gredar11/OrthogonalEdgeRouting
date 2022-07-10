@@ -1,15 +1,23 @@
 ﻿using GraphX.Common.Models;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace GraphxOrtho.Models
 {
-    public class DataVertex : VertexBase
+    public class DataVertex : VertexBase, INotifyPropertyChanged
     {
-        public string Text { get; set; }
+        private string text;
+        public string Text { 
+            get { return text; }
+            set { 
+                text = value;
+                OnPropertyChanged(nameof(Text));
+            }
+        }
 
         #region Calculated or static props
 
@@ -31,6 +39,17 @@ namespace GraphxOrtho.Models
         public DataVertex(string text = "")
         {
             Text = text;
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void OnPropertyChanged(string info)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(info));
+            }
         }
     }
 }

@@ -27,7 +27,7 @@ namespace GraphxOrtho.Models
 
         public Point[] ComputeSingle(TEdge edge)
         {
-            return new Point[]{ new Point(0.0,0.0)};
+            return null;
         }
 
         public void UpdateVertexData(TVertex vertex, Point position, Rect size)

@@ -2,8 +2,17 @@
 using GraphX.Controls;
 using GraphX.Logic.Algorithms.LayoutAlgorithms;
 using GraphxOrtho.Models;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using GraphX.Measure;
+using System.Windows.Shapes;
+using System.Windows.Media;
+using System.Windows.Data;
+using System.Windows.Controls;
+using GraphX.Logic.Algorithms.EdgeRouting;
+using GraphX.Common.Interfaces;
+using GraphX;
 
 namespace GraphxOrtho
 {
@@ -18,7 +27,7 @@ namespace GraphxOrtho
             ZoomControl.SetViewFinderVisibility(zoomctrl, Visibility.Visible);
             //Set Fill zooming strategy so whole graph will be always visible
             zoomctrl.ZoomToFill();
-
+            
             //Lets setup GraphArea settings
             GraphAreaExample_Setup();
             OrthoAlgo.Do();
@@ -32,14 +41,6 @@ namespace GraphxOrtho
             gg_but_randomgraph_Click(null, null);
         }
 
-        void gg_but_relayout_Click(object sender, RoutedEventArgs e)
-        {
-            //This method initiates graph relayout process which involves consequnet call to all selected algorithms.
-            //It behaves like GenerateGraph() method except that it doesn't create any visual object. Only update existing ones
-            //using current Area.Graph data graph.
-            Area.RelayoutGraph();
-            zoomctrl.ZoomToFill();
-        }
 
         void gg_but_randomgraph_Click(object sender, RoutedEventArgs e)
         {
@@ -63,6 +64,8 @@ namespace GraphxOrtho
             //For ex.: Area.EdgesList[0].DashStyle = GraphX.EdgeDashStyle.Dash;
             Area.SetEdgesDashStyle(EdgeDashStyle.Solid);
             Area.SetVerticesDrag(true);
+            Area.SetEdgesDrag(true);
+            
             //This method sets edges arrows visibility. It is also applied to all edges in Area.EdgesList. You can also set property for
             //each edge individually using property, for ex: Area.EdgesList[0].ShowArrows = true;
             Area.ShowAllEdgesArrows(true);
@@ -142,16 +145,16 @@ namespace GraphxOrtho
             //This property sets edge routing algorithm that is used to build route paths according to algorithm logic.
             //For ex., SimpleER algorithm will try to set edge paths around vertices so no edge will intersect any vertex.
             //Bundling algorithm will try to tie different edges that follows same direction to a single channel making complex graphs more appealing.
-            logicCore.ExternalEdgeRoutingAlgorithm = new OrthogonalEdgeRoutingAlgorithm<DataVertex,DataEdge>();
-            //logicCore.DefaultEdgeRoutingAlgorithm = EdgeRoutingAlgorithmTypeEnum.SimpleER;
-
+            //logicCore.ExternalEdgeRoutingAlgorithm = new OrthogonalEdgeRoutingAlgorithm<DataVertex,DataEdge>();
+            logicCore.DefaultEdgeRoutingAlgorithm = EdgeRoutingAlgorithmTypeEnum.PathFinder;
             //This property sets async algorithms computation so methods like: Area.RelayoutGraph() and Area.GenerateGraph()
             //will run async with the UI thread. Completion of the specified methods can be catched by corresponding events:
             //Area.RelayoutFinished and Area.GenerateGraphFinished.
             logicCore.AsyncAlgorithmCompute = false;
-
             //Finally assign logic core to GraphArea object
             Area.LogicCore = logicCore;
+            Area.SetVerticesMathShape(VertexShape.Rectangle);
+            System.Console.WriteLine();
         }
 
         public void Dispose()
@@ -160,5 +163,105 @@ namespace GraphxOrtho
             //that ensures that all potential memory-holding objects will be released.
             Area.Dispose();
         }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            foreach (var vertex in Area.VertexList)
+            {
+                // словарь узлов
+                // локальный объект - DataVertex
+                var dataKey = vertex.Key;
+                // визуальный объект - VertexControl
+                var dataControl = vertex.Value;
+
+                dataControl.SetConnectionPointsVisibility(true);
+                var vertexConnectionPoints = dataControl.VertexConnectionPointsList.ToList();
+
+                dataKey.Text = dataControl.GetPosition().X.ToString("F1") + " : " + dataControl.GetPosition().Y.ToString("F1");
+
+                // установка этикетке узла его позиции
+                //var vertexTemplate = dataControl.Template;
+                //var temp = vertexTemplate.FindName("PART_vertexLabel",dataControl) as VertexLabelControl;
+                //temp.Content = dataKey.Text;
+
+            }
+            foreach(var edge in Area.EdgesList)
+            {
+                var edgeKey = edge.Key;
+                var edgeData = edge.Value;
+                var commonEdge = edgeKey as IGraphXCommonEdge;
+                System.Windows.Point sourceConnPoint = new System.Windows.Point();
+                var routedEdge = edgeData.Edge as IRoutingInfo;
+                var routeInformation = routedEdge.RoutingPoints;
+                var hasRouteInfo = routeInformation != null && routeInformation.Length > 1;
+
+                var sourceSize = new System.Windows.Size
+                {
+                    Width = edgeData.Source.ActualWidth,
+                    Height = edgeData.Source.ActualHeight
+                };
+                var sourcePos = new System.Windows.Point
+                {
+                    X = (GraphAreaBase.GetFinalX(edgeData.Source)) + sourceSize.Width * 0.5,
+                    Y = (GraphAreaBase.GetFinalY(edgeData.Source)) + sourceSize.Height * 0.5
+                };
+                var sourcePos1 = new System.Windows.Point
+                {
+                    X = (GraphAreaBase.GetFinalX(edgeData.Source)),
+                    Y = (GraphAreaBase.GetFinalY(edgeData.Source))
+                };
+                var targetPos = new System.Windows.Point
+                {
+                    X = (GraphAreaBase.GetFinalX(edgeData.Target)),
+                    Y = (GraphAreaBase.GetFinalY(edgeData.Target))
+                };
+                if (commonEdge?.SourceConnectionPointId != null)
+                {
+                    var sourceCp = edgeData.Source.GetConnectionPointById(commonEdge.SourceConnectionPointId.Value, true);
+                    if (sourceCp == null)
+                    {
+                        throw new System.Exception("");
+                    }
+                    
+                }
+                else
+                    sourceConnPoint = GeometryHelper.GetEdgeEndpoint(sourcePos, new System.Windows.Rect(sourcePos1, sourceSize), (hasRouteInfo ? routeInformation[1].ToWindows() : (targetPos)), edgeData.Source.VertexShape);
+                Area.AddCustomChildControl(new Line()
+                {
+                    Stroke = Brushes.Red,
+                    X1 = sourceConnPoint.X,
+                    X2 = sourceConnPoint.X,
+                    Y1 = sourceConnPoint.Y - 5,
+                    Y2 = sourceConnPoint.Y + 5,
+                    StrokeThickness = 2
+                });
+                Area.AddCustomChildControl(new Line()
+                {
+                    Stroke = Brushes.Red,
+                    X1 = sourceConnPoint.X-5,
+                    X2 = sourceConnPoint.X+5,
+                    Y1 = sourceConnPoint.Y,
+                    Y2 = sourceConnPoint.Y,
+                    StrokeThickness = 2
+                });
+            }
+            //var edges = Area.EdgesList.Values.ToList();
+            //var vertex1 = edges[0].Source;
+            //var currentPosition = vertex1.GetPosition();
+            //vertex1.SetPosition(new System.Windows.Point(currentPosition.X - 20, currentPosition.Y - 10));
+            //Area.AddCustomChildControl(new Line()
+            //{
+            //    Stroke = Brushes.Black,
+            //    X1 = currentPosition.X,
+            //    X2 = currentPosition.X + 100,
+            //    Y1 = currentPosition.Y,
+            //    Y2 = currentPosition.Y + 100,
+            //    StrokeThickness = 1
+            //});
+
+            
+
+        }
     }
+    
 }
