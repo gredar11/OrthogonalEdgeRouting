@@ -96,7 +96,7 @@
     <Compile Include="Models\GraphAreaExample .cs" />
     <Compile Include="Models\GraphExample.cs" />
     <Compile Include="Models\GXLogicCoreExample.cs" />
-    <Compile Include="Models\OrthoAlgo.cs" />
+    <Compile Include="Models\PointWithDirection.cs" />
     <Compile Include="Models\OrthogonalEdgeRoutingAlgorithm.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>

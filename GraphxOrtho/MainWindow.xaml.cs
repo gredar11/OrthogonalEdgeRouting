@@ -30,7 +30,7 @@ namespace GraphxOrtho
             
             //Lets setup GraphArea settings
             GraphAreaExample_Setup();
-            OrthoAlgo.Do();
+            //OrthoAlgo.Do();
 
             Loaded += MainWindow_Loaded;
         }
