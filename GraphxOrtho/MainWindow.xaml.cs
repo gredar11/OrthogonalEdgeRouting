@@ -228,6 +228,7 @@ namespace GraphxOrtho
                     sourceConnPoint = GeometryHelper.GetEdgeEndpoint(sourcePos, new System.Windows.Rect(sourcePos1, sourceSize), (hasRouteInfo ? routeInformation[1].ToWindows() : (targetPos)), edgeData.Source.VertexShape);
                 Area.AddCustomChildControl(new Line()
                 {
+                    Name = "Line1",
                     Stroke = Brushes.Red,
                     X1 = sourceConnPoint.X,
                     X2 = sourceConnPoint.X,
@@ -237,6 +238,7 @@ namespace GraphxOrtho
                 });
                 Area.AddCustomChildControl(new Line()
                 {
+                    Name = "Line2",
                     Stroke = Brushes.Red,
                     X1 = sourceConnPoint.X-5,
                     X2 = sourceConnPoint.X+5,
@@ -244,23 +246,9 @@ namespace GraphxOrtho
                     Y2 = sourceConnPoint.Y,
                     StrokeThickness = 2
                 });
+                
+                var lines = Area.GetChildControls<Line>();
             }
-            //var edges = Area.EdgesList.Values.ToList();
-            //var vertex1 = edges[0].Source;
-            //var currentPosition = vertex1.GetPosition();
-            //vertex1.SetPosition(new System.Windows.Point(currentPosition.X - 20, currentPosition.Y - 10));
-            //Area.AddCustomChildControl(new Line()
-            //{
-            //    Stroke = Brushes.Black,
-            //    X1 = currentPosition.X,
-            //    X2 = currentPosition.X + 100,
-            //    Y1 = currentPosition.Y,
-            //    Y2 = currentPosition.Y + 100,
-            //    StrokeThickness = 1
-            //});
-
-            
-
         }
     }
     
