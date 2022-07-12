@@ -1,6 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using GraphxOrtho.Models;
+using GraphxOrtho.Models.Tools;
 
 namespace Test
 {

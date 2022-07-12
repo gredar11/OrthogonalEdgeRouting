@@ -8,7 +8,6 @@ using System.Windows;
 using GraphX.Measure;
 using System.Windows.Shapes;
 using System.Windows.Media;
-using System.Windows.Data;
 using System.Windows.Controls;
 using GraphX.Logic.Algorithms.EdgeRouting;
 using GraphX.Common.Interfaces;
@@ -146,7 +145,7 @@ namespace GraphxOrtho
             //For ex., SimpleER algorithm will try to set edge paths around vertices so no edge will intersect any vertex.
             //Bundling algorithm will try to tie different edges that follows same direction to a single channel making complex graphs more appealing.
             //logicCore.ExternalEdgeRoutingAlgorithm = new OrthogonalEdgeRoutingAlgorithm<DataVertex,DataEdge>();
-            logicCore.DefaultEdgeRoutingAlgorithm = EdgeRoutingAlgorithmTypeEnum.PathFinder;
+            logicCore.DefaultEdgeRoutingAlgorithm = EdgeRoutingAlgorithmTypeEnum.SimpleER;
             //This property sets async algorithms computation so methods like: Area.RelayoutGraph() and Area.GenerateGraph()
             //will run async with the UI thread. Completion of the specified methods can be catched by corresponding events:
             //Area.RelayoutFinished and Area.GenerateGraphFinished.
@@ -166,6 +165,16 @@ namespace GraphxOrtho
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
+            // Удаляем все линии с графа, чтобы нарисовать новые.
+            var allLines = Area.GetChildControls<Line>().ToList();
+            foreach (var item in allLines)
+            {
+                Area.Children.Remove(item);
+            }
+
+            var zoomctrl = Area.Parent as ZoomControl;
+            
+
             foreach (var vertex in Area.VertexList)
             {
                 // словарь узлов
@@ -173,83 +182,174 @@ namespace GraphxOrtho
                 var dataKey = vertex.Key;
                 // визуальный объект - VertexControl
                 var dataControl = vertex.Value;
+                
+                //AddBoundSegmentsToAreaByVertexControl(dataControl, zoomctrl);
 
-                dataControl.SetConnectionPointsVisibility(true);
-                var vertexConnectionPoints = dataControl.VertexConnectionPointsList.ToList();
+                #region Добавление узлу его текущей позиции
+                //dataControl.SetConnectionPointsVisibility(true);
+                //var vertexConnectionPoints = dataControl.VertexConnectionPointsList.ToList();
 
-                dataKey.Text = dataControl.GetPosition().X.ToString("F1") + " : " + dataControl.GetPosition().Y.ToString("F1");
+                //dataKey.Text = dataControl.GetPosition().X.ToString("F1") + " : " + dataControl.GetPosition().Y.ToString("F1");
 
                 // установка этикетке узла его позиции
                 //var vertexTemplate = dataControl.Template;
                 //var temp = vertexTemplate.FindName("PART_vertexLabel",dataControl) as VertexLabelControl;
-                //temp.Content = dataKey.Text;
-
+                //temp.Content = dataKey.Text; 
+                #endregion
             }
-            foreach(var edge in Area.EdgesList)
+            
+            #region Границы графа
+            Area.AddCustomChildControl(new Line()
             {
-                var edgeKey = edge.Key;
-                var edgeData = edge.Value;
-                var commonEdge = edgeKey as IGraphXCommonEdge;
-                System.Windows.Point sourceConnPoint = new System.Windows.Point();
-                var routedEdge = edgeData.Edge as IRoutingInfo;
-                var routeInformation = routedEdge.RoutingPoints;
-                var hasRouteInfo = routeInformation != null && routeInformation.Length > 1;
+                Name = "Line2",
+                Stroke = Brushes.Gray,
+                X1 = 0,
+                X2 = zoomctrl.ActualWidth,
+                Y1 = 0,
+                Y2 = 0,
+                StrokeThickness = 0.5
+            });
+            Area.AddCustomChildControl(new Line()
+            {
+                Name = "Line2",
+                Stroke = Brushes.Gray,
+                X1 = 0,
+                X2 = 0,
+                Y1 = 0,
+                Y2 = zoomctrl.ActualHeight,
+                StrokeThickness = 0.5
+            });
+            Area.AddCustomChildControl(new Line()
+            {
+                Name = "Line2",
+                Stroke = Brushes.Gray,
+                X1 = 0,
+                X2 = zoomctrl.ActualWidth,
+                Y1 = zoomctrl.ActualHeight,
+                Y2 = zoomctrl.ActualHeight,
+                StrokeThickness = 0.5
+            });
+            Area.AddCustomChildControl(new Line()
+            {
+                Name = "Line2",
+                Stroke = Brushes.Gray,
+                X1 = zoomctrl.ActualWidth,
+                X2 = zoomctrl.ActualWidth,
+                Y1 = 0,
+                Y2 = zoomctrl.ActualHeight,
+                StrokeThickness = 0.5
+            }); 
+            #endregion
+            //foreach (var edge in Area.EdgesList)
+            //{
+            //    //System.Windows.Point sourceConnPoint = GetSourcePointOfEdge(edge); 
+            //    var lines = Area.GetChildControls<Line>();
+            //}
 
-                var sourceSize = new System.Windows.Size
-                {
-                    Width = edgeData.Source.ActualWidth,
-                    Height = edgeData.Source.ActualHeight
-                };
-                var sourcePos = new System.Windows.Point
-                {
-                    X = (GraphAreaBase.GetFinalX(edgeData.Source)) + sourceSize.Width * 0.5,
-                    Y = (GraphAreaBase.GetFinalY(edgeData.Source)) + sourceSize.Height * 0.5
-                };
-                var sourcePos1 = new System.Windows.Point
-                {
-                    X = (GraphAreaBase.GetFinalX(edgeData.Source)),
-                    Y = (GraphAreaBase.GetFinalY(edgeData.Source))
-                };
-                var targetPos = new System.Windows.Point
-                {
-                    X = (GraphAreaBase.GetFinalX(edgeData.Target)),
-                    Y = (GraphAreaBase.GetFinalY(edgeData.Target))
-                };
-                if (commonEdge?.SourceConnectionPointId != null)
-                {
-                    var sourceCp = edgeData.Source.GetConnectionPointById(commonEdge.SourceConnectionPointId.Value, true);
-                    if (sourceCp == null)
-                    {
-                        throw new System.Exception("");
-                    }
-                    
-                }
-                else
-                    sourceConnPoint = GeometryHelper.GetEdgeEndpoint(sourcePos, new System.Windows.Rect(sourcePos1, sourceSize), (hasRouteInfo ? routeInformation[1].ToWindows() : (targetPos)), edgeData.Source.VertexShape);
-                Area.AddCustomChildControl(new Line()
-                {
-                    Name = "Line1",
-                    Stroke = Brushes.Red,
-                    X1 = sourceConnPoint.X,
-                    X2 = sourceConnPoint.X,
-                    Y1 = sourceConnPoint.Y - 5,
-                    Y2 = sourceConnPoint.Y + 5,
-                    StrokeThickness = 2
-                });
-                Area.AddCustomChildControl(new Line()
-                {
-                    Name = "Line2",
-                    Stroke = Brushes.Red,
-                    X1 = sourceConnPoint.X-5,
-                    X2 = sourceConnPoint.X+5,
-                    Y1 = sourceConnPoint.Y,
-                    Y2 = sourceConnPoint.Y,
-                    StrokeThickness = 2
-                });
-                
-                var lines = Area.GetChildControls<Line>();
-            }
         }
+        public void AddBoundSegmentsToAreaByVertexControl(VertexControl vertex, ZoomControl zoomControl)
+        {
+            var position = vertex.GetPosition();
+
+            var zoomctrl = Area.Parent as ZoomControl;
+
+            // drawing horizontal segments
+            Area.AddCustomChildControl(new Line()
+            {
+                Stroke = Brushes.Gray,
+                X1 = 0,
+                X2 = zoomctrl.ActualWidth,
+                Y1 = position.Y,
+                Y2 = position.Y,
+                StrokeThickness = 0.5
+            });
+            Area.AddCustomChildControl(new Line()
+            {
+                Stroke = Brushes.Gray,
+                X1 = 0,
+                X2 = zoomctrl.ActualWidth,
+                Y1 = position.Y + vertex.ActualHeight,
+                Y2 = position.Y + vertex.ActualHeight,
+                StrokeThickness = 0.5
+            });
+            // drawing vertical segments
+            Area.AddCustomChildControl(new Line()
+            {
+                Stroke = Brushes.Gray,
+                X1 = position.X,
+                X2 = position.X,
+                Y1 = 0,
+                Y2 = zoomControl.ActualHeight,
+                StrokeThickness = 0.5
+            });
+            Area.AddCustomChildControl(new Line()
+            {
+                Stroke = Brushes.Gray,
+                X1 = position.X + vertex.ActualWidth,
+                X2 = position.X + vertex.ActualWidth,
+                Y1 = 0,
+                Y2 = zoomControl.ActualHeight,
+                StrokeThickness = 0.5
+            });
+        }
+        private static System.Windows.Point GetSourcePointOfEdge(KeyValuePair<DataEdge, EdgeControl> edge)
+        {
+            var edgeKey = edge.Key;
+            var edgeData = edge.Value;
+            var commonEdge = edgeKey as IGraphXCommonEdge;
+            System.Windows.Point sourceConnPoint = new System.Windows.Point();
+            var routedEdge = edgeData.Edge as IRoutingInfo;
+            var routeInformation = routedEdge.RoutingPoints;
+            var hasRouteInfo = routeInformation != null && routeInformation.Length > 1;
+
+            var sourceSize = new System.Windows.Size
+            {
+                Width = edgeData.Source.ActualWidth,
+                Height = edgeData.Source.ActualHeight
+            };
+            var sourcePos = new System.Windows.Point
+            {
+                X = (GraphAreaBase.GetFinalX(edgeData.Source)) + sourceSize.Width * 0.5,
+                Y = (GraphAreaBase.GetFinalY(edgeData.Source)) + sourceSize.Height * 0.5
+            };
+            var sourcePos1 = new System.Windows.Point
+            {
+                X = (GraphAreaBase.GetFinalX(edgeData.Source)),
+                Y = (GraphAreaBase.GetFinalY(edgeData.Source))
+            };
+            var targetPos = new System.Windows.Point
+            {
+                X = (GraphAreaBase.GetFinalX(edgeData.Target)),
+                Y = (GraphAreaBase.GetFinalY(edgeData.Target))
+            };
+            if (commonEdge?.SourceConnectionPointId != null)
+            {
+                var sourceCp = edgeData.Source.GetConnectionPointById(commonEdge.SourceConnectionPointId.Value, true);
+                if (sourceCp == null)
+                {
+                    throw new System.Exception("");
+                }
+
+            }
+            else
+                sourceConnPoint = GeometryHelper.GetEdgeEndpoint(sourcePos, new System.Windows.Rect(sourcePos1, sourceSize), (hasRouteInfo ? routeInformation[1].ToWindows() : (targetPos)), edgeData.Source.VertexShape);
+            return sourceConnPoint;
+        }
+        private static System.Windows.Point RescaleYCoordinateWithHeight(System.Windows.Point startPoint, double differenceBetweenZeros)
+        {
+            return new System.Windows.Point(startPoint.X, differenceBetweenZeros - startPoint.Y);
+        }
+        private static Line DrawLine(System.Windows.Point startPoint, System.Windows.Point endPoint, List<VertexControl> vertices)
+        { 
+            return null;
+        }
+        private bool LineIntersectsVertexHorizontal(VertexControl vertex, System.Windows.Point startPoint, System.Windows.Point endPoint)
+        {
+            if (vertex.GetPosition().Y <= startPoint.Y && startPoint.Y <= vertex.GetPosition().Y + vertex.ActualHeight)
+                return true;
+            return false;
+        }
+        
     }
     
 }

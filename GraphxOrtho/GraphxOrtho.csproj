@@ -34,6 +34,10 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>
+    </StartupObject>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="GraphX.Standard.Common, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\GraphX.3.0.0\lib\net461\GraphX.Standard.Common.dll</HintPath>
@@ -91,12 +95,14 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Models\AlgorithmTools\OrthogonalVertex.cs" />
+    <Compile Include="Models\AlgorithmTools\OrthogonalVisibilityGraph.cs" />
     <Compile Include="Models\DataEdge.cs" />
     <Compile Include="Models\DataVertex.cs" />
     <Compile Include="Models\GraphAreaExample .cs" />
     <Compile Include="Models\GraphExample.cs" />
     <Compile Include="Models\GXLogicCoreExample.cs" />
-    <Compile Include="Models\PointWithDirection.cs" />
+    <Compile Include="Models\AlgorithmTools\PointWithDirection.cs" />
     <Compile Include="Models\OrthogonalEdgeRoutingAlgorithm.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>

@@ -2,7 +2,7 @@
 using System;
 using System.Windows;
 using System.Collections.Generic;
-namespace GraphxOrtho.Models
+namespace GraphxOrtho.Models.Tools
 {
     public class PointWithDirection
     {
@@ -10,7 +10,8 @@ namespace GraphxOrtho.Models
         public Direction Direction { get; set; }
         /// <summary>
         /// Method calculates heuristic cost with two points. It depends of incoming direction of first point
-        /// and needed direction of second.
+        /// and needed direction of second. In this case North direction means that you going up on x axis, and South vice versa.
+        /// Wpf Canvas y axis has "direction from top to bottom".
         /// </summary>
         /// <param name="point1"></param>
         /// <param name="point2"></param>
