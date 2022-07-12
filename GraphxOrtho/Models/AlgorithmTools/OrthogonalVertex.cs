@@ -20,10 +20,10 @@ namespace GraphxOrtho.Models.AlgorithmTools
             
             return false;
         }
-        internal Func<double,double> GetLineDelegate(Line line)
-        {
+        //internal Func<double,double> GetLineDelegate(Line line)
+        //{
             
-        }
+        //}
         public OrthogonalVertex(VertexControl control, double heightOfCanvas, double widhtOfCanvas)
         {
             this.VertexControl = control;

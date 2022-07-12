@@ -2,7 +2,7 @@
 using System;
 using System.Windows;
 using System.Collections.Generic;
-namespace GraphxOrtho.Models.Tools
+namespace GraphxOrtho.Models.AlgorithmTools
 {
     public class PointWithDirection
     {
@@ -20,6 +20,9 @@ namespace GraphxOrtho.Models.Tools
         {
             //Get sets of directions with dirns function
             HashSet<Direction> directions = dirns(source.Point, target.Point);
+            //DirsFromTargetTosource
+            HashSet<Direction> directionsFromTargetTosource = dirns(target.Point, source.Point);
+
             // possible turns
             Direction turnToleft = TurnInDefiniteDirection(target.Direction, TurnDirection.left);
             Direction turnToright = TurnInDefiniteDirection(target.Direction, TurnDirection.right);
@@ -27,21 +30,21 @@ namespace GraphxOrtho.Models.Tools
             // source direction as HashSet for readability.
             var sourceDirectionAsHashSet = new HashSet<Direction>() { source.Direction };
             var targetDirectionAsHashSet = new HashSet<Direction>() { target.Direction };
-            // if source is on the line with target and they have same directions, then return 0
+            // if source is on the line with target and they have same directions, then return 0 #CHECKED
             if (source.Direction == target.Direction && directions.SetEquals(sourceDirectionAsHashSet))
                 return 0;
             // when its needed to add 1 bound to reach target point.
-            if ((turnToleft == source.Direction || turnToright == source.Direction) && directions.Contains(source.Direction))
+            if ((turnToleft == source.Direction || turnToright == source.Direction) && directions.Contains(source.Direction) && !directions.Contains(turnReverse))
                 return 1;
             // 2 bound
             if ((source.Direction == target.Direction && !directions.SetEquals(sourceDirectionAsHashSet) && directions.Contains(source.Direction))
-                || (source.Direction == turnReverse && !directions.SetEquals(sourceDirectionAsHashSet)))
+                || (source.Direction == turnReverse && !directions.SetEquals(targetDirectionAsHashSet) && !directions.SetEquals(new HashSet<Direction> { turnReverse})))
                 return 2;
             // 3 bound
-            if ((turnToleft == source.Direction || turnToright == source.Direction) && !directions.Contains(source.Direction))
+            if ((turnToleft == source.Direction || turnToright == source.Direction) && (!directions.Contains(source.Direction) || !directionsFromTargetTosource.Contains(source.Direction)) )
                 return 3;
             // 4 bound 
-            if ((source.Direction == turnReverse && directions.SetEquals(targetDirectionAsHashSet))
+            if ((source.Direction == turnReverse && (directions.SetEquals(targetDirectionAsHashSet) || directions.SetEquals(new HashSet<Direction> { turnReverse })))
                 || (source.Direction == target.Direction && !directions.Contains(source.Direction)))
                 return 4;
             throw new Exception($"Can't find Sd. of points {source} with {source.Direction} " +
@@ -116,6 +119,11 @@ namespace GraphxOrtho.Models.Tools
             }
             return Direction.Stop;
         }
+        public override string ToString()
+        {
+            return $"({Point.X:F3} ; {Point.Y:F3}), {Direction} | " + base.ToString();
+        }
+        
     }
     public enum TurnDirection
     {

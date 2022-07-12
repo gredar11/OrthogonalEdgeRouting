@@ -95,6 +95,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Models\AlgorithmTools\DebugHelper.cs" />
     <Compile Include="Models\AlgorithmTools\OrthogonalVertex.cs" />
     <Compile Include="Models\AlgorithmTools\OrthogonalVisibilityGraph.cs" />
     <Compile Include="Models\DataEdge.cs" />
