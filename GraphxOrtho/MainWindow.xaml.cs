@@ -1,17 +1,16 @@
-﻿using GraphX.Common.Enums;
+﻿using GraphX;
+using GraphX.Common.Enums;
+using GraphX.Common.Interfaces;
 using GraphX.Controls;
 using GraphX.Logic.Algorithms.LayoutAlgorithms;
 using GraphxOrtho.Models;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
-using GraphX.Measure;
-using System.Windows.Shapes;
 using System.Windows.Media;
+using System.Windows.Shapes;
+using GraphxOrtho.Models.AlgorithmTools;
 using System.Windows.Controls;
-using GraphX.Logic.Algorithms.EdgeRouting;
-using GraphX.Common.Interfaces;
-using GraphX;
 
 namespace GraphxOrtho
 {
@@ -71,7 +70,7 @@ namespace GraphxOrtho
 
             //This method sets edges labels visibility. It is also applied to all edges in Area.EdgesList. You can also set property for
             //each edge individually using property, for ex: Area.EdgesList[0].ShowLabel = true;
-            Area.ShowAllEdgesLabels(true);
+            Area.ShowAllEdgesLabels(false);
 
             zoomctrl.ZoomToFill();
         }
@@ -100,14 +99,14 @@ namespace GraphxOrtho
             //Then create two edges optionaly defining Text property to show who are connected
             var dataEdge = new DataEdge(vlist[0], vlist[1]) { };
             dataGraph.AddEdge(dataEdge);
-            dataEdge = new DataEdge(vlist[1], vlist[0]) {  };
-            dataGraph.AddEdge(dataEdge);
+            //dataEdge = new DataEdge(vlist[1], vlist[0]) {  };
+            //dataGraph.AddEdge(dataEdge);
             dataEdge = new DataEdge(vlist[2], vlist[0]) { };
             dataGraph.AddEdge(dataEdge);
             dataEdge = new DataEdge(vlist[0], vlist[3]) { };
             dataGraph.AddEdge(dataEdge);
-            dataEdge = new DataEdge(vlist[2], vlist[3]) { };
-            dataGraph.AddEdge(dataEdge);
+            //dataEdge = new DataEdge(vlist[2], vlist[3]) { };
+            //dataGraph.AddEdge(dataEdge);
             dataEdge = new DataEdge(vlist[4], vlist[0]) { };
             dataGraph.AddEdge(dataEdge);
             dataEdge = new DataEdge(vlist[5], vlist[4]) { };
@@ -173,8 +172,8 @@ namespace GraphxOrtho
             }
 
             var zoomctrl = Area.Parent as ZoomControl;
-            
 
+            List<OrthogonalVertex> orthogonalVertices = new List<OrthogonalVertex>();
             foreach (var vertex in Area.VertexList)
             {
                 // словарь узлов
@@ -182,7 +181,7 @@ namespace GraphxOrtho
                 var dataKey = vertex.Key;
                 // визуальный объект - VertexControl
                 var dataControl = vertex.Value;
-                
+                orthogonalVertices.Add(new OrthogonalVertex(dataControl, zoomctrl.ActualHeight, zoomctrl.ActualWidth, 5.0));
                 //AddBoundSegmentsToAreaByVertexControl(dataControl, zoomctrl);
 
                 #region Добавление узлу его текущей позиции
@@ -197,9 +196,12 @@ namespace GraphxOrtho
                 //temp.Content = dataKey.Text; 
                 #endregion
             }
+            OrthogonalVisibilityGraph graph = new OrthogonalVisibilityGraph(orthogonalVertices);
+            List<Line> horizontalSegments = new List<Line>();
+            List<Line> verticalSegments = new List<Line>();
             
             #region Границы графа
-            Area.AddCustomChildControl(new Line()
+            var horBounder1 = new Line()
             {
                 Name = "Line2",
                 Stroke = Brushes.Gray,
@@ -208,8 +210,8 @@ namespace GraphxOrtho
                 Y1 = 0,
                 Y2 = 0,
                 StrokeThickness = 0.5
-            });
-            Area.AddCustomChildControl(new Line()
+            };
+            var verBounder1 = (new Line()
             {
                 Name = "Line2",
                 Stroke = Brushes.Gray,
@@ -219,7 +221,7 @@ namespace GraphxOrtho
                 Y2 = zoomctrl.ActualHeight,
                 StrokeThickness = 0.5
             });
-            Area.AddCustomChildControl(new Line()
+            var horBounder2 = (new Line()
             {
                 Name = "Line2",
                 Stroke = Brushes.Gray,
@@ -229,7 +231,7 @@ namespace GraphxOrtho
                 Y2 = zoomctrl.ActualHeight,
                 StrokeThickness = 0.5
             });
-            Area.AddCustomChildControl(new Line()
+            var verBounder2 = (new Line()
             {
                 Name = "Line2",
                 Stroke = Brushes.Gray,
@@ -238,8 +240,105 @@ namespace GraphxOrtho
                 Y1 = 0,
                 Y2 = zoomctrl.ActualHeight,
                 StrokeThickness = 0.5
-            }); 
+            });
             #endregion
+            horizontalSegments.Add(horBounder1);
+            horizontalSegments.Add(horBounder2);
+            verticalSegments.Add(verBounder1);
+            verticalSegments.Add(verBounder2);
+            foreach (var orthogonalVertex in orthogonalVertices)
+            {
+                foreach(var segment in orthogonalVertex.HorizontalSegments)
+                {
+                    Area.AddCustomChildControl(segment);
+                    horizontalSegments.Add(segment);
+                }
+                foreach (var segment in orthogonalVertex.VerticalSegments)
+                {
+                    Area.AddCustomChildControl(segment);
+                    verticalSegments.Add(segment);
+                }
+            }
+            List<PointWithDirection> pointsForOvg = new List<PointWithDirection>();
+            Dictionary<Line, List<PointWithDirection>> segmentsWithPoints = new Dictionary<Line, List<PointWithDirection>>();
+            foreach (var hsegment in horizontalSegments)
+            {
+                foreach (var vsegment in verticalSegments)
+                {
+                    var intersection = OrthogonalVisibilityGraph.GetIntersectionOfTwoLines(hsegment, vsegment);
+                    if (intersection != null && !pointsForOvg.Contains(intersection))
+                    {
+                        pointsForOvg.Add(intersection);
+                        if(!segmentsWithPoints.ContainsKey(hsegment) ||  segmentsWithPoints[hsegment] == null)
+                        {
+                            segmentsWithPoints[hsegment] = new List<PointWithDirection>();
+                        }
+                        segmentsWithPoints[hsegment].Add(intersection);
+                        if (!segmentsWithPoints.ContainsKey(vsegment) || segmentsWithPoints[vsegment] == null)
+                        {
+                            segmentsWithPoints[vsegment] = new List<PointWithDirection>();
+                        }
+                        segmentsWithPoints[vsegment].Add(intersection);
+                    }
+                }
+            }
+            foreach (var lineSegment in segmentsWithPoints)
+            {
+                if (IsLineHorizontal(lineSegment.Key))
+                {
+                    var points = lineSegment.Value;
+                    var pointssortedByX = (points.OrderBy(l => l.Point.X)).ToList();
+                    if (pointssortedByX.Count() <= 1)
+                        continue;
+                    for (int i = 1; i < pointssortedByX.Count; i++)
+                    {
+                        Area.AddCustomChildControl(new Line()
+                        {
+                            X1 = pointssortedByX[i - 1].Point.X,
+                            Y1 = pointssortedByX[i - 1].Point.Y,
+                            X2 = pointssortedByX[i].Point.X,
+                            Y2 = pointssortedByX[i].Point.Y,
+                            StrokeThickness = 0.5,
+                            Stroke = Brushes.Lime,
+                            StrokeDashArray = new DoubleCollection() { 1.0 }
+                        });
+                    }
+                }
+                else
+                {
+                    var points = lineSegment.Value;
+                    var pointssortedByY = (points.OrderBy(l => l.Point.Y)).ToList();
+                    if (pointssortedByY.Count() <= 1)
+                        continue;
+                    for (int i = 1; i < pointssortedByY.Count; i++)
+                    {
+                        Area.AddCustomChildControl(new Line()
+                        {
+                            X1 = pointssortedByY[i - 1].Point.X,
+                            Y1 = pointssortedByY[i - 1].Point.Y,
+                            X2 = pointssortedByY[i].Point.X,
+                            Y2 = pointssortedByY[i].Point.Y,
+                            StrokeThickness = 0.5,
+                            Stroke = Brushes.Lime,
+                            StrokeDashArray = new DoubleCollection() { 1.0 }
+                        });
+                    }
+
+                }
+            }
+            foreach(var point in pointsForOvg)
+            {
+                var circle = new Ellipse()
+                {
+                    Width = 4,
+                    Height = 4,
+                    Stroke = Brushes.Black,
+                    StrokeThickness = 1
+                };
+                Area.AddCustomChildControl(circle);
+                circle.Margin = new Thickness() { Left = point.Point.X - circle.Width/2, Top = point.Point.Y - circle.Height/2 };
+            }
+            
             //foreach (var edge in Area.EdgesList)
             //{
             //    //System.Windows.Point sourceConnPoint = GetSourcePointOfEdge(edge); 
@@ -335,21 +434,11 @@ namespace GraphxOrtho
                 sourceConnPoint = GeometryHelper.GetEdgeEndpoint(sourcePos, new System.Windows.Rect(sourcePos1, sourceSize), (hasRouteInfo ? routeInformation[1].ToWindows() : (targetPos)), edgeData.Source.VertexShape);
             return sourceConnPoint;
         }
-        private static System.Windows.Point RescaleYCoordinateWithHeight(System.Windows.Point startPoint, double differenceBetweenZeros)
-        {
-            return new System.Windows.Point(startPoint.X, differenceBetweenZeros - startPoint.Y);
-        }
-        private static Line DrawLine(System.Windows.Point startPoint, System.Windows.Point endPoint, List<VertexControl> vertices)
-        { 
-            return null;
-        }
-        private bool LineIntersectsVertexHorizontal(VertexControl vertex, System.Windows.Point startPoint, System.Windows.Point endPoint)
-        {
-            if (vertex.GetPosition().Y <= startPoint.Y && startPoint.Y <= vertex.GetPosition().Y + vertex.ActualHeight)
-                return true;
-            return false;
-        }
         
+        private bool IsLineHorizontal(Line line)
+        {
+            return line.Y1 == line.Y2;
+        }
     }
     
 }

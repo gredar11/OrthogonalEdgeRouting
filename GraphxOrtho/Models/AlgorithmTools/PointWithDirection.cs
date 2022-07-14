@@ -123,7 +123,11 @@ namespace GraphxOrtho.Models.AlgorithmTools
         {
             return $"({Point.X:F3} ; {Point.Y:F3}), {Direction} | " + base.ToString();
         }
-        
+        public override bool Equals(object obj)
+        {
+            if (obj is PointWithDirection) return ((PointWithDirection)obj).Point.X == this.Point.X && ((PointWithDirection)obj).Point.Y == this.Point.Y;
+            return false;
+        }
     }
     public enum TurnDirection
     {

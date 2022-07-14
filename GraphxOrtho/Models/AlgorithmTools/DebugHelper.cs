@@ -8,6 +8,12 @@ namespace GraphxOrtho.Models.AlgorithmTools
 {
     public static class DebugHelper
     {
+        /// <summary>
+        /// Helps to visualize 2-dimensional arrays while debugging.
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="pad"></param>
+        /// <returns></returns>
         public static string Test2D(this Array source, int pad = 10)
         {
             var result = "";
