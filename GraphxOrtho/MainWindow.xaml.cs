@@ -174,6 +174,7 @@ namespace GraphxOrtho
             var zoomctrl = Area.Parent as ZoomControl;
 
             List<OrthogonalVertex> orthogonalVertices = new List<OrthogonalVertex>();
+
             foreach (var vertex in Area.VertexList)
             {
                 // словарь узлов
@@ -181,6 +182,7 @@ namespace GraphxOrtho
                 var dataKey = vertex.Key;
                 // визуальный объект - VertexControl
                 var dataControl = vertex.Value;
+                // creating vertex with bounds and vertical + horizontal segments
                 orthogonalVertices.Add(new OrthogonalVertex(dataControl, zoomctrl.ActualHeight, zoomctrl.ActualWidth, 5.0));
                 //AddBoundSegmentsToAreaByVertexControl(dataControl, zoomctrl);
 
@@ -196,7 +198,9 @@ namespace GraphxOrtho
                 //temp.Content = dataKey.Text; 
                 #endregion
             }
+            // Graph for vertex and edges search
             OrthogonalVisibilityGraph graph = new OrthogonalVisibilityGraph(orthogonalVertices);
+            // Vertical and horizontal segments of final graph
             List<Line> horizontalSegments = new List<Line>();
             List<Line> verticalSegments = new List<Line>();
             
@@ -246,6 +250,7 @@ namespace GraphxOrtho
             horizontalSegments.Add(horBounder2);
             verticalSegments.Add(verBounder1);
             verticalSegments.Add(verBounder2);
+            // adding all segments to concrete collection
             foreach (var orthogonalVertex in orthogonalVertices)
             {
                 foreach(var segment in orthogonalVertex.HorizontalSegments)
@@ -259,7 +264,9 @@ namespace GraphxOrtho
                     verticalSegments.Add(segment);
                 }
             }
+            // vertices of Ovg
             List<PointWithDirection> pointsForOvg = new List<PointWithDirection>();
+            // dictionary of segments for adding edges of graph
             Dictionary<Line, List<PointWithDirection>> segmentsWithPoints = new Dictionary<Line, List<PointWithDirection>>();
             foreach (var hsegment in horizontalSegments)
             {
@@ -282,6 +289,7 @@ namespace GraphxOrtho
                     }
                 }
             }
+            // printing all edges of Ovg
             foreach (var lineSegment in segmentsWithPoints)
             {
                 if (IsLineHorizontal(lineSegment.Key))
@@ -326,6 +334,7 @@ namespace GraphxOrtho
 
                 }
             }
+            // ptinting all vertices of Ovg
             foreach(var point in pointsForOvg)
             {
                 var circle = new Ellipse()
