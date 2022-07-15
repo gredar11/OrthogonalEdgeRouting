@@ -170,11 +170,9 @@ namespace GraphxOrtho
             {
                 Area.Children.Remove(item);
             }
-
-            var zoomctrl = Area.Parent as ZoomControl;
-
             List<OrthogonalVertex> orthogonalVertices = new List<OrthogonalVertex>();
 
+            var zoomctrl = Area.Parent as ZoomControl;
             foreach (var vertex in Area.VertexList)
             {
                 // словарь узлов
@@ -185,169 +183,51 @@ namespace GraphxOrtho
                 // creating vertex with bounds and vertical + horizontal segments
                 orthogonalVertices.Add(new OrthogonalVertex(dataControl, zoomctrl.ActualHeight, zoomctrl.ActualWidth, 5.0));
                 //AddBoundSegmentsToAreaByVertexControl(dataControl, zoomctrl);
-
-                #region Добавление узлу его текущей позиции
-                //dataControl.SetConnectionPointsVisibility(true);
-                //var vertexConnectionPoints = dataControl.VertexConnectionPointsList.ToList();
-
-                //dataKey.Text = dataControl.GetPosition().X.ToString("F1") + " : " + dataControl.GetPosition().Y.ToString("F1");
-
-                // установка этикетке узла его позиции
-                //var vertexTemplate = dataControl.Template;
-                //var temp = vertexTemplate.FindName("PART_vertexLabel",dataControl) as VertexLabelControl;
-                //temp.Content = dataKey.Text; 
-                #endregion
             }
-            // Graph for vertex and edges search
-            OrthogonalVisibilityGraph graph = new OrthogonalVisibilityGraph(orthogonalVertices);
-            // Vertical and horizontal segments of final graph
-            List<Line> horizontalSegments = new List<Line>();
-            List<Line> verticalSegments = new List<Line>();
-            
-            #region Границы графа
-            var horBounder1 = new Line()
-            {
-                Name = "Line2",
-                Stroke = Brushes.Gray,
-                X1 = 0,
-                X2 = zoomctrl.ActualWidth,
-                Y1 = 0,
-                Y2 = 0,
-                StrokeThickness = 0.5
-            };
-            var verBounder1 = (new Line()
-            {
-                Name = "Line2",
-                Stroke = Brushes.Gray,
-                X1 = 0,
-                X2 = 0,
-                Y1 = 0,
-                Y2 = zoomctrl.ActualHeight,
-                StrokeThickness = 0.5
-            });
-            var horBounder2 = (new Line()
-            {
-                Name = "Line2",
-                Stroke = Brushes.Gray,
-                X1 = 0,
-                X2 = zoomctrl.ActualWidth,
-                Y1 = zoomctrl.ActualHeight,
-                Y2 = zoomctrl.ActualHeight,
-                StrokeThickness = 0.5
-            });
-            var verBounder2 = (new Line()
-            {
-                Name = "Line2",
-                Stroke = Brushes.Gray,
-                X1 = zoomctrl.ActualWidth,
-                X2 = zoomctrl.ActualWidth,
-                Y1 = 0,
-                Y2 = zoomctrl.ActualHeight,
-                StrokeThickness = 0.5
-            });
-            #endregion
-            horizontalSegments.Add(horBounder1);
-            horizontalSegments.Add(horBounder2);
-            verticalSegments.Add(verBounder1);
-            verticalSegments.Add(verBounder2);
-            // adding all segments to concrete collection
-            foreach (var orthogonalVertex in orthogonalVertices)
-            {
-                foreach(var segment in orthogonalVertex.HorizontalSegments)
-                {
-                    Area.AddCustomChildControl(segment);
-                    horizontalSegments.Add(segment);
-                }
-                foreach (var segment in orthogonalVertex.VerticalSegments)
-                {
-                    Area.AddCustomChildControl(segment);
-                    verticalSegments.Add(segment);
-                }
-            }
-            // vertices of Ovg
-            List<PointWithDirection> pointsForOvg = new List<PointWithDirection>();
-            // dictionary of segments for adding edges of graph
-            Dictionary<Line, List<PointWithDirection>> segmentsWithPoints = new Dictionary<Line, List<PointWithDirection>>();
-            foreach (var hsegment in horizontalSegments)
-            {
-                foreach (var vsegment in verticalSegments)
-                {
-                    var intersection = OrthogonalVisibilityGraph.GetIntersectionOfTwoLines(hsegment, vsegment);
-                    if (intersection != null && !pointsForOvg.Contains(intersection))
-                    {
-                        pointsForOvg.Add(intersection);
-                        if(!segmentsWithPoints.ContainsKey(hsegment) ||  segmentsWithPoints[hsegment] == null)
-                        {
-                            segmentsWithPoints[hsegment] = new List<PointWithDirection>();
-                        }
-                        segmentsWithPoints[hsegment].Add(intersection);
-                        if (!segmentsWithPoints.ContainsKey(vsegment) || segmentsWithPoints[vsegment] == null)
-                        {
-                            segmentsWithPoints[vsegment] = new List<PointWithDirection>();
-                        }
-                        segmentsWithPoints[vsegment].Add(intersection);
-                    }
-                }
-            }
-            // printing all edges of Ovg
-            foreach (var lineSegment in segmentsWithPoints)
-            {
-                if (IsLineHorizontal(lineSegment.Key))
-                {
-                    var points = lineSegment.Value;
-                    var pointssortedByX = (points.OrderBy(l => l.Point.X)).ToList();
-                    if (pointssortedByX.Count() <= 1)
-                        continue;
-                    for (int i = 1; i < pointssortedByX.Count; i++)
-                    {
-                        Area.AddCustomChildControl(new Line()
-                        {
-                            X1 = pointssortedByX[i - 1].Point.X,
-                            Y1 = pointssortedByX[i - 1].Point.Y,
-                            X2 = pointssortedByX[i].Point.X,
-                            Y2 = pointssortedByX[i].Point.Y,
-                            StrokeThickness = 0.5,
-                            Stroke = Brushes.Lime,
-                            StrokeDashArray = new DoubleCollection() { 1.0 }
-                        });
-                    }
-                }
-                else
-                {
-                    var points = lineSegment.Value;
-                    var pointssortedByY = (points.OrderBy(l => l.Point.Y)).ToList();
-                    if (pointssortedByY.Count() <= 1)
-                        continue;
-                    for (int i = 1; i < pointssortedByY.Count; i++)
-                    {
-                        Area.AddCustomChildControl(new Line()
-                        {
-                            X1 = pointssortedByY[i - 1].Point.X,
-                            Y1 = pointssortedByY[i - 1].Point.Y,
-                            X2 = pointssortedByY[i].Point.X,
-                            Y2 = pointssortedByY[i].Point.Y,
-                            StrokeThickness = 0.5,
-                            Stroke = Brushes.Lime,
-                            StrokeDashArray = new DoubleCollection() { 1.0 }
-                        });
-                    }
+            OrthogonalVisibilityGraph orthogonalVisibilityGraph = new OrthogonalVisibilityGraph(orthogonalVertices, zoomctrl, Area);
 
-                }
-            }
-            // ptinting all vertices of Ovg
-            foreach(var point in pointsForOvg)
+            foreach (var edge in orthogonalVisibilityGraph.AdjacencyGraph.Edges)
             {
-                var circle = new Ellipse()
+                Area.AddCustomChildControl(new Line()
+                {
+                    X1 = edge.Source.Point.X,
+                    Y1 = edge.Source.Point.Y,
+                    X2 = edge.Target.Point.X,
+                    Y2 = edge.Target.Point.Y,
+                    Stroke = Brushes.Gray,
+                    StrokeThickness = 0.5
+                });
+                var sourceCircle = new Ellipse()
                 {
                     Width = 4,
                     Height = 4,
                     Stroke = Brushes.Black,
                     StrokeThickness = 1
                 };
-                Area.AddCustomChildControl(circle);
-                circle.Margin = new Thickness() { Left = point.Point.X - circle.Width/2, Top = point.Point.Y - circle.Height/2 };
+                Area.AddCustomChildControl(sourceCircle);
+                sourceCircle.Margin = new Thickness() { Left = edge.Source.Point.X - sourceCircle.Width / 2, Top = edge.Source.Point.Y - sourceCircle.Height / 2 };
+                var targetCircle = new Ellipse()
+                {
+                    Width = 4,
+                    Height = 4,
+                    Stroke = Brushes.Black,
+                    StrokeThickness = 1
+                };
+                Area.AddCustomChildControl(targetCircle);
+                targetCircle.Margin = new Thickness() { Left = edge.Target.Point.X - targetCircle.Width / 2, Top = edge.Target.Point.Y - targetCircle.Height / 2 };
+                IEnumerable<QuickGraph.Edge<PointWithDirection>> sourceOutEdges;
+                orthogonalVisibilityGraph.AdjacencyGraph.TryGetOutEdges(edge.Source, out sourceOutEdges);
+                List<PointWithDirection> sourceNeighbours = new List<PointWithDirection>();
+                foreach (var outEdge in sourceOutEdges)
+                {
+                    if (edge.Source.Equals(outEdge.Source))
+                        sourceNeighbours.Add(outEdge.Target);
+                    else
+                        sourceNeighbours.Add(outEdge.Source);
+                }
             }
-            
+            //OrthogonalVisibilityGraph.AddOvgToZoomControl(zoomctrl, Area);
+
             //foreach (var edge in Area.EdgesList)
             //{
             //    //System.Windows.Point sourceConnPoint = GetSourcePointOfEdge(edge); 
