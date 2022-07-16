@@ -37,7 +37,7 @@ namespace GraphxOrtho.Models.AlgorithmTools
                         continue;
                     // если сегмент пересекает фигуру узла, то обрезаем его в зависимости от положения
                     // этих узлов. ->
-                    if(IsHorizontalLineIntersectsFigure(vertex, segment))
+                    if (IsHorizontalLineIntersectsFigure(vertex, segment))
                     {
                         // -> то обрезаем его в зависимости от положения этих узлов.
                         CutHorizontalSegment(segment, vertex, currentVertex);
@@ -82,7 +82,7 @@ namespace GraphxOrtho.Models.AlgorithmTools
         }
         private void CutHorizontalSegment(Line horSegment, OrthogonalVertex vertex, OrthogonalVertex segmentParentVertex)
         {
-            if(vertex.Position.X > segmentParentVertex.Position.X)
+            if (vertex.Position.X > segmentParentVertex.Position.X)
             {
                 double newX2 = vertex.Position.X - vertex.MarginToEdge;
                 if (newX2 < horSegment.X2)
@@ -112,70 +112,70 @@ namespace GraphxOrtho.Models.AlgorithmTools
         }
         public static PointWithDirection GetIntersectionOfTwoLines(Line horizontalSegment, Line verticalSegment)
         {
-            var horizontalDiapazonX = new double[] { horizontalSegment.X1, horizontalSegment.X2 }; 
+            var horizontalDiapazonX = new double[] { horizontalSegment.X1, horizontalSegment.X2 };
             var verticalDiapazonY = new double[] { verticalSegment.Y1, verticalSegment.Y2 };
             Array.Sort(verticalDiapazonY);
             Array.Sort(horizontalDiapazonX);
-            if(verticalSegment.X1 >= horizontalDiapazonX[0] && verticalSegment.X1 <= horizontalDiapazonX[1]
+            if (verticalSegment.X1 >= horizontalDiapazonX[0] && verticalSegment.X1 <= horizontalDiapazonX[1]
                 && horizontalSegment.Y1 >= verticalDiapazonY[0] && horizontalSegment.Y1 <= verticalDiapazonY[1])
-                return new PointWithDirection() { Point = new System.Windows.Point(verticalSegment.X1,horizontalSegment.Y1) };
+                return new PointWithDirection() { Point = new System.Windows.Point(verticalSegment.X1, horizontalSegment.Y1) };
             return null;
         }
         public void AddOvgToZoomControl(ZoomControl zoomctrl)
         {
-            
+
             // Graph for vertex and edges search
             //OrthogonalVisibilityGraph graph = new OrthogonalVisibilityGraph(orthogonalVertices, zoomctrl, graphArea);
             // Vertical and horizontal segments of final graph
             List<Line> horizontalSegments = new List<Line>();
             List<Line> verticalSegments = new List<Line>();
 
-            #region Границы графа
-            var horBounder1 = new Line()
-            {
-                Name = "Line2",
-                Stroke = Brushes.Gray,
-                X1 = 0,
-                X2 = zoomctrl.ActualWidth,
-                Y1 = 0,
-                Y2 = 0,
-                StrokeThickness = 0.5
-            };
-            var verBounder1 = (new Line()
-            {
-                Name = "Line2",
-                Stroke = Brushes.Gray,
-                X1 = 0,
-                X2 = 0,
-                Y1 = 0,
-                Y2 = zoomctrl.ActualHeight,
-                StrokeThickness = 0.5
-            });
-            var horBounder2 = (new Line()
-            {
-                Name = "Line2",
-                Stroke = Brushes.Gray,
-                X1 = 0,
-                X2 = zoomctrl.ActualWidth,
-                Y1 = zoomctrl.ActualHeight,
-                Y2 = zoomctrl.ActualHeight,
-                StrokeThickness = 0.5
-            });
-            var verBounder2 = (new Line()
-            {
-                Name = "Line2",
-                Stroke = Brushes.Gray,
-                X1 = zoomctrl.ActualWidth,
-                X2 = zoomctrl.ActualWidth,
-                Y1 = 0,
-                Y2 = zoomctrl.ActualHeight,
-                StrokeThickness = 0.5
-            });
-            #endregion
-            horizontalSegments.Add(horBounder1);
-            horizontalSegments.Add(horBounder2);
-            verticalSegments.Add(verBounder1);
-            verticalSegments.Add(verBounder2);
+            //#region Границы графа
+            //var horBounder1 = new Line()
+            //{
+            //    Name = "Line2",
+            //    Stroke = Brushes.Gray,
+            //    X1 = 0,
+            //    X2 = zoomctrl.ActualWidth,
+            //    Y1 = 0,
+            //    Y2 = 0,
+            //    StrokeThickness = 0.5
+            //};
+            //var verBounder1 = (new Line()
+            //{
+            //    Name = "Line2",
+            //    Stroke = Brushes.Gray,
+            //    X1 = 0,
+            //    X2 = 0,
+            //    Y1 = 0,
+            //    Y2 = zoomctrl.ActualHeight,
+            //    StrokeThickness = 0.5
+            //});
+            //var horBounder2 = (new Line()
+            //{
+            //    Name = "Line2",
+            //    Stroke = Brushes.Gray,
+            //    X1 = 0,
+            //    X2 = zoomctrl.ActualWidth,
+            //    Y1 = zoomctrl.ActualHeight,
+            //    Y2 = zoomctrl.ActualHeight,
+            //    StrokeThickness = 0.5
+            //});
+            //var verBounder2 = (new Line()
+            //{
+            //    Name = "Line2",
+            //    Stroke = Brushes.Gray,
+            //    X1 = zoomctrl.ActualWidth,
+            //    X2 = zoomctrl.ActualWidth,
+            //    Y1 = 0,
+            //    Y2 = zoomctrl.ActualHeight,
+            //    StrokeThickness = 0.5
+            //});
+            //#endregion
+            //horizontalSegments.Add(horBounder1);
+            //horizontalSegments.Add(horBounder2);
+            //verticalSegments.Add(verBounder1);
+            //verticalSegments.Add(verBounder2);
             // adding all segments to concrete collection
             foreach (var orthogonalVertex in MainGraphVertices)
             {
@@ -226,16 +226,6 @@ namespace GraphxOrtho.Models.AlgorithmTools
                         continue;
                     for (int i = 1; i < pointssortedByX.Count; i++)
                     {
-                        //graphArea.AddCustomChildControl(new Line()
-                        //{
-                        //    X1 = pointssortedByX[i - 1].Point.X,
-                        //    Y1 = pointssortedByX[i - 1].Point.Y,
-                        //    X2 = pointssortedByX[i].Point.X,
-                        //    Y2 = pointssortedByX[i].Point.Y,
-                        //    StrokeThickness = 0.5,
-                        //    Stroke = Brushes.Lime,
-                        //    StrokeDashArray = new DoubleCollection() { 1.0 }
-                        //});
                         Edge<PointWithDirection> edge = new Edge<PointWithDirection>(pointssortedByX[i - 1], pointssortedByX[i]);
                         AdjacencyGraph.AddVerticesAndEdge(edge);
                     }
@@ -248,23 +238,13 @@ namespace GraphxOrtho.Models.AlgorithmTools
                         continue;
                     for (int i = 1; i < pointssortedByY.Count; i++)
                     {
-                        //graphArea.AddCustomChildControl(new Line()
-                        //{
-                        //    X1 = pointssortedByY[i - 1].Point.X,
-                        //    Y1 = pointssortedByY[i - 1].Point.Y,
-                        //    X2 = pointssortedByY[i].Point.X,
-                        //    Y2 = pointssortedByY[i].Point.Y,
-                        //    StrokeThickness = 0.5,
-                        //    Stroke = Brushes.Lime,
-                        //    StrokeDashArray = new DoubleCollection() { 1.0 }
-                        //});
                         Edge<PointWithDirection> edge = new Edge<PointWithDirection>(pointssortedByY[i - 1], pointssortedByY[i]);
                         AdjacencyGraph.AddVerticesAndEdge(edge);
                     }
                 }
             }
             // ptinting all vertices of Ovg
-            
+
         }
         private static bool IsLineHorizontal(Line line)
         {

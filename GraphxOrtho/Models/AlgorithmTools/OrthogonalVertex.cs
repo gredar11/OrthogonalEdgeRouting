@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows.Shapes;
 using System;
 using System.Windows.Media;
+using System.Windows;
 
 namespace GraphxOrtho.Models.AlgorithmTools
 {
@@ -17,7 +18,7 @@ namespace GraphxOrtho.Models.AlgorithmTools
         public List<Line> HorizontalSegments { get; }
         public List<Line> VerticalSegments { get; }
         public double MarginToEdge { get; }
-        public OrthogonalVertex(VertexControl control, double heightOfCanvas, double widhtOfCanvas, double marginBetweenEdgeAndNode)
+        public OrthogonalVertex(VertexControl control, Point leftTopPoint, Point rightBottomPoint, double marginBetweenEdgeAndNode)
         {
             this.VertexControl = control;
             this.Position = VertexControl.GetPosition();
@@ -28,18 +29,18 @@ namespace GraphxOrtho.Models.AlgorithmTools
             HorizontalSegments.Add(new Line()
             {
                 Stroke = Brushes.Gray,
-                X1 = 0,
+                X1 = leftTopPoint.X - MarginToEdge,
                 Y1 = Position.Y - MarginToEdge,
-                X2 = widhtOfCanvas,
+                X2 = rightBottomPoint.X + MarginToEdge,
                 Y2 = Position.Y - MarginToEdge,
                 StrokeThickness = 0.5
             });
             HorizontalSegments.Add(new Line()
             {
                 Stroke = Brushes.Gray,
-                X1 = 0,
+                X1 = leftTopPoint.X - MarginToEdge,
                 Y1 = Position.Y + VertexControl.ActualHeight + MarginToEdge,
-                X2 = widhtOfCanvas,
+                X2 = rightBottomPoint.X + MarginToEdge,
                 Y2 = Position.Y + VertexControl.ActualHeight + MarginToEdge,
                 StrokeThickness = 0.5
             });
@@ -48,18 +49,18 @@ namespace GraphxOrtho.Models.AlgorithmTools
             {
                 Stroke = Brushes.Gray,
                 X1 = Position.X - MarginToEdge,
-                Y1 = 0,
+                Y1 = leftTopPoint.Y - MarginToEdge,
                 X2 = Position.X - MarginToEdge,
-                Y2 = heightOfCanvas,
+                Y2 = rightBottomPoint.Y + MarginToEdge,
                 StrokeThickness = 0.5
             });
             VerticalSegments.Add(new Line()
             {
                 Stroke = Brushes.Gray,
                 X1 = Position.X + VertexControl.ActualWidth + MarginToEdge,
-                Y1 = 0,
+                Y1 = leftTopPoint.Y - MarginToEdge,
                 X2 = Position.X + VertexControl.ActualWidth + MarginToEdge,
-                Y2 = heightOfCanvas,
+                Y2 = rightBottomPoint.Y + MarginToEdge,
                 StrokeThickness = 0.5
             });
         }
