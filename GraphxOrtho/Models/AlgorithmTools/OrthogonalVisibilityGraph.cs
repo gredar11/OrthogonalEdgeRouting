@@ -37,7 +37,7 @@ namespace GraphxOrtho.Models.AlgorithmTools
                         continue;
                     // если сегмент пересекает фигуру узла, то обрезаем его в зависимости от положения
                     // этих узлов. ->
-                    if (IsHorizontalLineIntersectsFigure(vertex, segment))
+                    if (GeometryAnalizator.LineIntersectsOrthogonalVertex(vertex, segment))
                     {
                         // -> то обрезаем его в зависимости от положения этих узлов.
                         CutHorizontalSegment(segment, vertex, currentVertex);
@@ -59,7 +59,7 @@ namespace GraphxOrtho.Models.AlgorithmTools
                         continue;
                     // если сегмент пересекает фигуру узла, то обрезаем его в зависимости от положения
                     // этих узлов. ->
-                    if (IsVerticalLineIntersectsFigure(vertex, segment))
+                    if (GeometryAnalizator.LineIntersectsOrthogonalVertex(vertex, segment))
                     {
                         // -> то обрезаем его в зависимости от положения этих узлов.
                         CutVerticalSegment(segment, vertex, currentVertex);
@@ -68,42 +68,26 @@ namespace GraphxOrtho.Models.AlgorithmTools
                 }
             }
         }
-        private bool IsHorizontalLineIntersectsFigure(OrthogonalVertex v1, Line line)
-        {
-            double[] horDiapazon = new double[] { line.X1, line.X2 };
-            Array.Sort(horDiapazon);
-            if (line.Y1 >= v1.Position.Y && line.Y1 <= v1.Position.Y + v1.VertexControl.ActualHeight 
-                //&& 
-                //(horDiapazon[0] <= v1.Position.X && horDiapazon[1] >= v1.Position.X || 
-                //horDiapazon[0] <= v1.Position.X + v1.VertexControl.ActualWidth && horDiapazon[1] >= v1.Position.X + v1.VertexControl.ActualWidth)
-                )
-                return true;
-            return false;
-        }
-        private bool IsVerticalLineIntersectsFigure(OrthogonalVertex v1, Line line)
-        {
-            double[] verDiapazon = new double[] { line.Y1, line.Y2 };
-            Array.Sort(verDiapazon);
-            if (line.X1 >= v1.Position.X && line.X1 <= v1.Position.X + v1.VertexControl.ActualWidth 
-                //&&
-                //(verDiapazon[0] <= v1.Position.Y && verDiapazon[1] >= v1.Position.Y ||
-                //verDiapazon[0] <= v1.Position.Y + v1.VertexControl.ActualHeight && verDiapazon[1] >= v1.Position.Y + v1.VertexControl.ActualHeight)
-                )
-                return true;
-            return false;
-        }
+        
         private void CutHorizontalSegment(Line horSegment, OrthogonalVertex vertex, OrthogonalVertex segmentParentVertex)
         {
             if (vertex.Position.X > segmentParentVertex.Position.X)
             {
+                // обрезаем справа
                 double newX2 = vertex.Position.X - vertex.MarginToEdge;
-                if (newX2 < horSegment.X2)
+
+                if (newX2 < horSegment.X2 && horSegment.X2 > horSegment.X1)
                     horSegment.X2 = newX2;
+                else if (newX2 < horSegment.X1 && horSegment.X2 < horSegment.X1)
+                    horSegment.X1 = newX2;
             }
             else
             {
+                // обрезаем слева
                 double newX1 = vertex.Position.X + vertex.VertexControl.ActualWidth + vertex.MarginToEdge;
-                if (newX1 > horSegment.X1)
+                if (newX1 > horSegment.X2 && horSegment.X2 < horSegment.X1)
+                    horSegment.X2 = newX1;
+                else if (newX1 > horSegment.X1 && horSegment.X2 > horSegment.X1)
                     horSegment.X1 = newX1;
             }
         }
@@ -111,14 +95,23 @@ namespace GraphxOrtho.Models.AlgorithmTools
         {
             if (vertex.Position.Y > segmentParentVertex.Position.Y)
             {
+                // обрезаем сверху
                 double newY2 = vertex.Position.Y - vertex.MarginToEdge;
-                if (newY2 < vertivcalSegment.Y2)
+                if (newY2 < vertivcalSegment.Y2 && vertivcalSegment.Y2 > vertivcalSegment.Y1)
                     vertivcalSegment.Y2 = newY2;
+
+                else if (newY2 < vertivcalSegment.Y1 && vertivcalSegment.Y2 < vertivcalSegment.Y1)
+                    vertivcalSegment.Y1 = newY2;
             }
             else
             {
+                // обрезаем снизу
                 double newY1 = vertex.Position.Y + vertex.VertexControl.ActualHeight + vertex.MarginToEdge;
-                if (newY1 > vertivcalSegment.Y1)
+                
+                if (newY1 > vertivcalSegment.Y2 && vertivcalSegment.Y2 < vertivcalSegment.Y1)
+                    vertivcalSegment.Y2 = newY1;
+
+                else if (newY1 > vertivcalSegment.Y1 && vertivcalSegment.Y2 > vertivcalSegment.Y1)
                     vertivcalSegment.Y1 = newY1;
             }
         }
