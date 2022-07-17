@@ -13,7 +13,7 @@ namespace GraphxOrtho.Models.AlgorithmTools
     {
         public List<OrthogonalVertex> MainGraphVertices { get; set; }
         public AdjacencyGraph<PointWithDirection, Edge<PointWithDirection>> AdjacencyGraph { get; set; }
-        public OrthogonalVisibilityGraph(List<OrthogonalVertex> mainGraphVertices, ZoomControl zoomControl, GraphAreaExample graphArea)
+        public OrthogonalVisibilityGraph(List<OrthogonalVertex> mainGraphVertices)
         {
             AdjacencyGraph = new AdjacencyGraph<PointWithDirection, Edge<PointWithDirection>>();
             MainGraphVertices = mainGraphVertices;
@@ -22,7 +22,7 @@ namespace GraphxOrtho.Models.AlgorithmTools
                 CutHorizontalSegments(vertex);
                 CutVerticalSegments(vertex);
             }
-            AddOvgToZoomControl(zoomControl);
+            AddOvgToZoomControl();
         }
         public void CutHorizontalSegments(OrthogonalVertex currentVertex)
         {
@@ -70,13 +70,25 @@ namespace GraphxOrtho.Models.AlgorithmTools
         }
         private bool IsHorizontalLineIntersectsFigure(OrthogonalVertex v1, Line line)
         {
-            if (line.Y1 >= v1.Position.Y && line.Y1 <= v1.Position.Y + v1.VertexControl.ActualHeight)
+            double[] horDiapazon = new double[] { line.X1, line.X2 };
+            Array.Sort(horDiapazon);
+            if (line.Y1 >= v1.Position.Y && line.Y1 <= v1.Position.Y + v1.VertexControl.ActualHeight 
+                //&& 
+                //(horDiapazon[0] <= v1.Position.X && horDiapazon[1] >= v1.Position.X || 
+                //horDiapazon[0] <= v1.Position.X + v1.VertexControl.ActualWidth && horDiapazon[1] >= v1.Position.X + v1.VertexControl.ActualWidth)
+                )
                 return true;
             return false;
         }
         private bool IsVerticalLineIntersectsFigure(OrthogonalVertex v1, Line line)
         {
-            if (line.X1 >= v1.Position.X && line.X1 <= v1.Position.X + v1.VertexControl.ActualWidth)
+            double[] verDiapazon = new double[] { line.Y1, line.Y2 };
+            Array.Sort(verDiapazon);
+            if (line.X1 >= v1.Position.X && line.X1 <= v1.Position.X + v1.VertexControl.ActualWidth 
+                //&&
+                //(verDiapazon[0] <= v1.Position.Y && verDiapazon[1] >= v1.Position.Y ||
+                //verDiapazon[0] <= v1.Position.Y + v1.VertexControl.ActualHeight && verDiapazon[1] >= v1.Position.Y + v1.VertexControl.ActualHeight)
+                )
                 return true;
             return false;
         }
@@ -121,62 +133,11 @@ namespace GraphxOrtho.Models.AlgorithmTools
                 return new PointWithDirection() { Point = new System.Windows.Point(verticalSegment.X1, horizontalSegment.Y1) };
             return null;
         }
-        public void AddOvgToZoomControl(ZoomControl zoomctrl)
+        public void AddOvgToZoomControl()
         {
-
-            // Graph for vertex and edges search
-            //OrthogonalVisibilityGraph graph = new OrthogonalVisibilityGraph(orthogonalVertices, zoomctrl, graphArea);
-            // Vertical and horizontal segments of final graph
             List<Line> horizontalSegments = new List<Line>();
             List<Line> verticalSegments = new List<Line>();
-
-            //#region Границы графа
-            //var horBounder1 = new Line()
-            //{
-            //    Name = "Line2",
-            //    Stroke = Brushes.Gray,
-            //    X1 = 0,
-            //    X2 = zoomctrl.ActualWidth,
-            //    Y1 = 0,
-            //    Y2 = 0,
-            //    StrokeThickness = 0.5
-            //};
-            //var verBounder1 = (new Line()
-            //{
-            //    Name = "Line2",
-            //    Stroke = Brushes.Gray,
-            //    X1 = 0,
-            //    X2 = 0,
-            //    Y1 = 0,
-            //    Y2 = zoomctrl.ActualHeight,
-            //    StrokeThickness = 0.5
-            //});
-            //var horBounder2 = (new Line()
-            //{
-            //    Name = "Line2",
-            //    Stroke = Brushes.Gray,
-            //    X1 = 0,
-            //    X2 = zoomctrl.ActualWidth,
-            //    Y1 = zoomctrl.ActualHeight,
-            //    Y2 = zoomctrl.ActualHeight,
-            //    StrokeThickness = 0.5
-            //});
-            //var verBounder2 = (new Line()
-            //{
-            //    Name = "Line2",
-            //    Stroke = Brushes.Gray,
-            //    X1 = zoomctrl.ActualWidth,
-            //    X2 = zoomctrl.ActualWidth,
-            //    Y1 = 0,
-            //    Y2 = zoomctrl.ActualHeight,
-            //    StrokeThickness = 0.5
-            //});
-            //#endregion
-            //horizontalSegments.Add(horBounder1);
-            //horizontalSegments.Add(horBounder2);
-            //verticalSegments.Add(verBounder1);
-            //verticalSegments.Add(verBounder2);
-            // adding all segments to concrete collection
+            
             foreach (var orthogonalVertex in MainGraphVertices)
             {
                 foreach (var segment in orthogonalVertex.HorizontalSegments)
@@ -191,17 +152,15 @@ namespace GraphxOrtho.Models.AlgorithmTools
                 }
             }
             // vertices of Ovg
-            List<PointWithDirection> pointsForOvg = new List<PointWithDirection>();
             // dictionary of segments for adding edges of graph
             Dictionary<Line, List<PointWithDirection>> segmentsWithPoints = new Dictionary<Line, List<PointWithDirection>>();
             foreach (var hsegment in horizontalSegments)
             {
                 foreach (var vsegment in verticalSegments)
                 {
-                    var intersection = OrthogonalVisibilityGraph.GetIntersectionOfTwoLines(hsegment, vsegment);
-                    if (intersection != null && !pointsForOvg.Contains(intersection))
+                    var intersection = GetIntersectionOfTwoLines(hsegment, vsegment);
+                    if (intersection != null)
                     {
-                        pointsForOvg.Add(intersection);
                         if (!segmentsWithPoints.ContainsKey(hsegment) || segmentsWithPoints[hsegment] == null)
                         {
                             segmentsWithPoints[hsegment] = new List<PointWithDirection>();
@@ -243,7 +202,33 @@ namespace GraphxOrtho.Models.AlgorithmTools
                     }
                 }
             }
+            foreach (var vertex in MainGraphVertices)
+            {
+                foreach (var connPoint in vertex.ConnectionPoints)
+                {
+                    AddConnectionSegment(vertex, connPoint);
+                }
+            }
             // ptinting all vertices of Ovg
+
+        }
+        public void AddConnectionSegment(OrthogonalVertex orthogonalVertex, Point connectionPoint)
+        {
+            double topSide = orthogonalVertex.Position.Y;
+            double bottomSide = orthogonalVertex.Position.Y + orthogonalVertex.VertexControl.ActualHeight;
+            double leftSide = orthogonalVertex.Position.X;
+            double rightSide = orthogonalVertex.Position.X + orthogonalVertex.VertexControl.ActualWidth;
+            if (connectionPoint.Y == topSide)
+                AdjacencyGraph.AddVerticesAndEdge(new Edge<PointWithDirection>(new PointWithDirection() { Point = connectionPoint }, new PointWithDirection() { Point = new Point { X = connectionPoint.X, Y = connectionPoint.Y - orthogonalVertex.MarginToEdge} }));
+            
+            if (connectionPoint.X == rightSide)
+                AdjacencyGraph.AddVerticesAndEdge(new Edge<PointWithDirection>(new PointWithDirection() { Point = connectionPoint }, new PointWithDirection() { Point = new Point { X = connectionPoint.X + orthogonalVertex.MarginToEdge, Y = connectionPoint.Y } }));
+
+            if (connectionPoint.Y == bottomSide)
+                AdjacencyGraph.AddVerticesAndEdge(new Edge<PointWithDirection>(new PointWithDirection() { Point = connectionPoint }, new PointWithDirection() { Point = new Point { X = connectionPoint.X, Y = connectionPoint.Y + orthogonalVertex.MarginToEdge} }));
+
+            if (connectionPoint.X == leftSide)
+                AdjacencyGraph.AddVerticesAndEdge(new Edge<PointWithDirection>(new PointWithDirection() { Point = connectionPoint }, new PointWithDirection() { Point = new Point { X = connectionPoint.X - orthogonalVertex.MarginToEdge, Y = connectionPoint.Y} }));
 
         }
         private static bool IsLineHorizontal(Line line)

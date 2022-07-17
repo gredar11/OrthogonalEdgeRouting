@@ -11,6 +11,7 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 using GraphxOrtho.Models.AlgorithmTools;
 using System.Windows.Controls;
+using QuickGraph;
 
 namespace GraphxOrtho
 {
@@ -166,6 +167,7 @@ namespace GraphxOrtho
         {
 
             // Удаляем все линии с графа, чтобы нарисовать новые.
+            #region Рисуем оси X и Y и удаляем все предыдущие построения линий и кругов.
             var allLines = Area.GetChildControls<Line>().ToList();
             foreach (var item in allLines)
             {
@@ -177,17 +179,36 @@ namespace GraphxOrtho
                 Area.Children.Remove(item);
             }
 
-            var firstEdge = new KeyValuePair<DataEdge, EdgeControl>();
-
-            foreach(var edge in Area.EdgesList)
+            var yAxis = new Line()
             {
-                firstEdge = edge;
-                break;
-            }
+                X1 = 0,
+                Y1 = -1000,
+                X2 = 0,
+                Y2 = 1000,
+                Stroke = Brushes.LightGray,
+                StrokeThickness = 0.3
+            };
 
-            var sourcePointOfEdge = GetSourcePointOfEdge(firstEdge);
+            Area.AddCustomChildControl(yAxis);
+            var xAxis = new Line()
+            {
+                X1 = -1000,
+                Y1 = 0,
+                X2 = 1000,
+                Y2 = 0,
+                Stroke = Brushes.LightGray,
+                StrokeThickness = 0.3
+            };
+            Area.AddCustomChildControl(xAxis); 
+            #endregion
+
+            //var sourcePointOfEdge = GetSourcePointOfEdge(firstEdge);
+
+            //var vertexOfFirstEdge = firstEdge.Value.Source;
 
             List<OrthogonalVertex> orthogonalVertices = new List<OrthogonalVertex>();
+
+            #region Ищем крайнюю девую и правую точку.
 
             var zoomctrl = Area.Parent as ZoomControl;
             Point leftTopEndOfGraph = new Point(0, 0);
@@ -200,39 +221,71 @@ namespace GraphxOrtho
                 // визуальный объект - VertexControl
                 var dataControl = vertex.Value;
                 Point positionOfNode = dataControl.GetPosition();
-                var secs = dataControl.VertexConnectionPointsList.ToList();
                 if (positionOfNode.X + dataControl.ActualWidth > rightBottomEndOfGraph.X)
                     rightBottomEndOfGraph.X = positionOfNode.X + dataControl.ActualWidth;
-                if(positionOfNode.X < leftTopEndOfGraph.X)
+                if (positionOfNode.X < leftTopEndOfGraph.X)
                     leftTopEndOfGraph.X = positionOfNode.X;
-                if(positionOfNode.Y + dataControl.ActualHeight > rightBottomEndOfGraph.Y)
-                    rightBottomEndOfGraph.Y = positionOfNode.Y + dataControl.ActualHeight; 
-                if(positionOfNode.Y < leftTopEndOfGraph.Y)
+                if (positionOfNode.Y + dataControl.ActualHeight > rightBottomEndOfGraph.Y)
+                    rightBottomEndOfGraph.Y = positionOfNode.Y + dataControl.ActualHeight;
+                if (positionOfNode.Y < leftTopEndOfGraph.Y)
                     leftTopEndOfGraph.Y = positionOfNode.Y;
                 // creating vertex with bounds and vertical + horizontal segments
-            }
+            } 
+            #endregion
+            
             foreach (var vertex in Area.VertexList)
             {
                 // визуальный объект - VertexControl
                 var dataControl = vertex.Value;
+                var rootArea = dataControl.RootArea;
+                var relatedEdges = rootArea.GetRelatedVertexControls(dataControl);
                 // creating vertex with bounds and vertical + horizontal segments
-                orthogonalVertices.Add(new OrthogonalVertex(dataControl, leftTopEndOfGraph, rightBottomEndOfGraph, 5.0));
+                orthogonalVertices.Add(new OrthogonalVertex(dataControl, leftTopEndOfGraph, rightBottomEndOfGraph, 10.0));
                 //AddBoundSegmentsToAreaByVertexControl(dataControl, zoomctrl);
             }
+            //foreach (var item in orthogonalVertices)
+            //{
+            //    foreach (var line in item.HorizontalSegments)
+            //    {
+            //        Area.AddCustomChildControl(line);
+            //    }
+            //    foreach (var line in item.VerticalSegments)
+            //    {
+            //        Area.AddCustomChildControl(line);
+            //    }
 
-            OrthogonalVisibilityGraph orthogonalVisibilityGraph = new OrthogonalVisibilityGraph(orthogonalVertices, zoomctrl, Area);
+            //}
 
-            foreach (var edge in orthogonalVisibilityGraph.AdjacencyGraph.Edges)
+            OrthogonalVisibilityGraph orthogonalVisibilityGraph = new OrthogonalVisibilityGraph(orthogonalVertices);
+
+            var adjGraphEdges = orthogonalVisibilityGraph.AdjacencyGraph.Edges.ToList();
+            adjGraphEdges = adjGraphEdges.OrderBy(x => x.Source.Point.X).ToList();
+
+            for (int i = 0; i < adjGraphEdges.Count; i++)
             {
-                Area.AddCustomChildControl(new Line()
+                var stroke = Brushes.Green;
+                var strokeThickness = 1.0;
+
+                var lineToAdd = new Line()
                 {
-                    X1 = edge.Source.Point.X,
-                    Y1 = edge.Source.Point.Y,
-                    X2 = edge.Target.Point.X,
-                    Y2 = edge.Target.Point.Y,
-                    Stroke = Brushes.Gray,
-                    StrokeThickness = 0.5
-                });
+                    X1 = adjGraphEdges[i].Source.Point.X,
+                    Y1 = adjGraphEdges[i].Source.Point.Y,
+                    X2 = adjGraphEdges[i].Target.Point.X,
+                    Y2 = adjGraphEdges[i].Target.Point.Y,
+                    Stroke = stroke,
+                    StrokeThickness = strokeThickness
+                };
+                if (IsLineHorizontal(lineToAdd))
+                {
+                    lineToAdd.X1 = lineToAdd.X1;
+                    lineToAdd.X2 = lineToAdd.X2;
+                }
+                else
+                {
+                    lineToAdd.Y1 = lineToAdd.Y1;
+                    lineToAdd.Y2 = lineToAdd.Y2;
+                }
+                Area.AddCustomChildControl(lineToAdd);
                 var sourceCircle = new Ellipse()
                 {
                     Width = 4,
@@ -241,140 +294,22 @@ namespace GraphxOrtho
                     StrokeThickness = 1
                 };
                 Area.AddCustomChildControl(sourceCircle);
-                sourceCircle.Margin = new Thickness() { Left = edge.Source.Point.X - sourceCircle.Width / 2, Top = edge.Source.Point.Y - sourceCircle.Height / 2 };
-                var targetCircle = new Ellipse()
-                {
-                    Width = 4,
-                    Height = 4,
-                    Stroke = Brushes.Black,
-                    StrokeThickness = 1
-                };
-                Area.AddCustomChildControl(targetCircle);
-                targetCircle.Margin = new Thickness() { Left = edge.Target.Point.X - targetCircle.Width / 2, Top = edge.Target.Point.Y - targetCircle.Height / 2 };
-                IEnumerable<QuickGraph.Edge<PointWithDirection>> sourceOutEdges;
-                orthogonalVisibilityGraph.AdjacencyGraph.TryGetOutEdges(edge.Source, out sourceOutEdges);
-                List<PointWithDirection> sourceNeighbours = new List<PointWithDirection>();
-                foreach (var outEdge in sourceOutEdges)
-                {
-                    if (edge.Source.Equals(outEdge.Source))
-                        sourceNeighbours.Add(outEdge.Target);
-                    else
-                        sourceNeighbours.Add(outEdge.Source);
-                }
+                GraphAreaBase.SetX(sourceCircle, adjGraphEdges[i].Source.Point.X - 2);
+                GraphAreaBase.SetY(sourceCircle, adjGraphEdges[i].Source.Point.Y - 2);
             }
-            //OrthogonalVisibilityGraph.AddOvgToZoomControl(zoomctrl, Area);
-
-            //foreach (var edge in Area.EdgesList)
-            //{
-            //    //System.Windows.Point sourceConnPoint = GetSourcePointOfEdge(edge); 
-            //    var lines = Area.GetChildControls<Line>();
-            //}
-
-        }
-        public void AddBoundSegmentsToAreaByVertexControl(VertexControl vertex, ZoomControl zoomControl)
-        {
-            var position = vertex.GetPosition();
-
-            var zoomctrl = Area.Parent as ZoomControl;
-
-            // drawing horizontal segments
-            Area.AddCustomChildControl(new Line()
+            foreach (var vertex in orthogonalVisibilityGraph.AdjacencyGraph.Vertices)
             {
-                Stroke = Brushes.Gray,
-                X1 = 0,
-                X2 = zoomctrl.ActualWidth,
-                Y1 = position.Y,
-                Y2 = position.Y,
-                StrokeThickness = 0.5
-            });
-            Area.AddCustomChildControl(new Line()
-            {
-                Stroke = Brushes.Gray,
-                X1 = 0,
-                X2 = zoomctrl.ActualWidth,
-                Y1 = position.Y + vertex.ActualHeight,
-                Y2 = position.Y + vertex.ActualHeight,
-                StrokeThickness = 0.5
-            });
-            // drawing vertical segments
-            Area.AddCustomChildControl(new Line()
-            {
-                Stroke = Brushes.Gray,
-                X1 = position.X,
-                X2 = position.X,
-                Y1 = 0,
-                Y2 = zoomControl.ActualHeight,
-                StrokeThickness = 0.5
-            });
-            Area.AddCustomChildControl(new Line()
-            {
-                Stroke = Brushes.Gray,
-                X1 = position.X + vertex.ActualWidth,
-                X2 = position.X + vertex.ActualWidth,
-                Y1 = 0,
-                Y2 = zoomControl.ActualHeight,
-                StrokeThickness = 0.5
-            });
-        }
-        private System.Windows.Point GetSourcePointOfEdge(KeyValuePair<DataEdge, EdgeControl> edge)
-        {
-            var edgeKey = edge.Key;
-            var edgeData = edge.Value;
-            var commonEdge = edgeKey as IGraphXCommonEdge;
-            System.Windows.Point sourceConnPoint = new System.Windows.Point();
-            var routedEdge = edgeData.Edge as IRoutingInfo;
-            var routeInformation = routedEdge.RoutingPoints;
-            var hasRouteInfo = routeInformation != null && routeInformation.Length > 1;
-
-            var sourceSize = new System.Windows.Size
-            {
-                Width = edgeData.Source.ActualWidth,
-                Height = edgeData.Source.ActualHeight
-            };
-            var centerPos = new System.Windows.Point
-            {
-                X = (GraphAreaBase.GetFinalX(edgeData.Source)) + sourceSize.Width * 0.5,
-                Y = (GraphAreaBase.GetFinalY(edgeData.Source)) + sourceSize.Height * 0.5
-            };
-            var leftCornerPos = new System.Windows.Point
-            {
-                X = (GraphAreaBase.GetFinalX(edgeData.Source)),
-                Y = (GraphAreaBase.GetFinalY(edgeData.Source))
-            };
-            var targetCenterPos = new System.Windows.Point
-            {
-                X = (GraphAreaBase.GetFinalX(edgeData.Target)),
-                Y = (GraphAreaBase.GetFinalY(edgeData.Target))
-            };
-            if (commonEdge?.SourceConnectionPointId != null)
-            {
-                var sourceCp = edgeData.Source.GetConnectionPointById(commonEdge.SourceConnectionPointId.Value, true);
-                if (sourceCp == null)
-                {
-                    throw new System.Exception("");
-                }
-
+                IEnumerable<Edge<PointWithDirection>> edges;
+                orthogonalVisibilityGraph.AdjacencyGraph.TryGetOutEdges(vertex, out edges);
+                System.Console.WriteLine();
             }
-            else
-                sourceConnPoint = GeometryHelper.GetEdgeEndpoint(centerPos, new System.Windows.Rect(leftCornerPos, sourceSize), (hasRouteInfo ? routeInformation[1].ToWindows() : (targetCenterPos)), edgeData.Source.VertexShape);
-            var sourceCircle = new Ellipse()
-            {
-                Width = 4,
-                Height = 4,
-                Stroke = Brushes.Red,
-                StrokeThickness = 1
-            };
-            Area.AddCustomChildControl(sourceCircle);
-            sourceCircle.Margin = new Thickness() { Left = sourceConnPoint.X - sourceCircle.Width / 2, Top = sourceConnPoint.Y - sourceCircle.Height / 2 };
-            double rightEdgeX = centerPos.X + edgeData.Source.ActualWidth / 2;
-            var bb = rightEdgeX == sourceConnPoint.X;
-            return sourceConnPoint;
         }
         
-        private bool IsLineHorizontal(Line line)
+        private static bool IsLineHorizontal(Line line)
         {
             return line.Y1 == line.Y2;
         }
+        
     }
     
 }
