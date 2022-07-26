@@ -12,6 +12,7 @@ using System.Windows.Shapes;
 using GraphxOrtho.Models.AlgorithmTools;
 using System.Windows.Controls;
 using QuickGraph;
+using GraphX.Common.Models;
 
 namespace GraphxOrtho
 {
@@ -144,13 +145,15 @@ namespace GraphxOrtho
             //This property sets edge routing algorithm that is used to build route paths according to algorithm logic.
             //For ex., SimpleER algorithm will try to set edge paths around vertices so no edge will intersect any vertex.
             //Bundling algorithm will try to tie different edges that follows same direction to a single channel making complex graphs more appealing.
-            //logicCore.ExternalEdgeRoutingAlgorithm = new OrthogonalEdgeRoutingAlgorithm<DataVertex,DataEdge>();
-            logicCore.DefaultEdgeRoutingAlgorithm = EdgeRoutingAlgorithmTypeEnum.SimpleER;
+            
+
+            //logicCore.DefaultEdgeRoutingAlgorithm = EdgeRoutingAlgorithmTypeEnum.SimpleER;
             //This property sets async algorithms computation so methods like: Area.RelayoutGraph() and Area.GenerateGraph()
             //will run async with the UI thread. Completion of the specified methods can be catched by corresponding events:
             //Area.RelayoutFinished and Area.GenerateGraphFinished.
             logicCore.AsyncAlgorithmCompute = false;
             //Finally assign logic core to GraphArea object
+            logicCore.ExternalEdgeRoutingAlgorithm = new OrthogonalEdgeRoutingAlgorithm<DataVertex, DataEdge>() { Graph = (GraphExample)logicCore.Graph };
             Area.LogicCore = logicCore;
             Area.SetVerticesMathShape(VertexShape.Rectangle);
             System.Console.WriteLine();
@@ -165,7 +168,7 @@ namespace GraphxOrtho
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-
+            Area.RelayoutGraph();
             // Удаляем все линии с графа, чтобы нарисовать новые.
             #region Рисуем оси X и Y и удаляем все предыдущие построения линий и кругов.
             var allLines = Area.GetChildControls<Line>().ToList();
@@ -242,6 +245,16 @@ namespace GraphxOrtho
                 // creating vertex with bounds and vertical + horizontal segments
                 orthogonalVertices.Add(new OrthogonalVertex(dataControl, leftTopEndOfGraph, rightBottomEndOfGraph, 10.0));
                 //AddBoundSegmentsToAreaByVertexControl(dataControl, zoomctrl);
+                var sourceCircle = new Ellipse()
+                {
+                    Width = 4,
+                    Height = 4,
+                    Stroke = Brushes.Red,
+                    StrokeThickness = 1
+                };
+                Area.AddCustomChildControl(sourceCircle);
+                GraphAreaBase.SetX(sourceCircle, dataControl.GetPosition().X - 2);
+                GraphAreaBase.SetY(sourceCircle, dataControl.GetPosition().Y - 2);
             }
             //foreach (var item in orthogonalVertices)
             //{

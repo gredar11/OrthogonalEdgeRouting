@@ -16,19 +16,19 @@ namespace GraphxOrtho.Models.AlgorithmTools
     public class OrthogonalVertex
     {
         public VertexControl VertexControl { get; }
-        public SystemWindows.Point Position { get; }
+        public Point Position { get; }
         public List<Line> HorizontalSegments { get; }
         public List<Line> VerticalSegments { get; }
         public List<Point> ConnectionPoints { get; set; }
         public double MarginToEdge { get; }
         public OrthogonalVertex(VertexControl control, Point leftTopPoint, Point rightBottomPoint, double marginBetweenEdgeAndNode)
         {
-            this.VertexControl = control;
-            this.Position = VertexControl.GetPosition();
-            this.VerticalSegments = new List<Line>();
-            this.HorizontalSegments = new List<Line>();
+            VertexControl = control;
+            Position = VertexControl.GetPosition();
+            VerticalSegments = new List<Line>();
+            HorizontalSegments = new List<Line>();
             ConnectionPoints = new List<Point>();
-            this.MarginToEdge = marginBetweenEdgeAndNode;
+            MarginToEdge = marginBetweenEdgeAndNode;
             // adding HorizontalSegments
             HorizontalSegments.Add(new Line()
             {

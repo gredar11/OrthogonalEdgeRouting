@@ -99,6 +99,7 @@
     <Compile Include="Models\AlgorithmTools\GeometryAnalizator.cs" />
     <Compile Include="Models\AlgorithmTools\OrthogonalVertex.cs" />
     <Compile Include="Models\AlgorithmTools\OrthogonalVisibilityGraph.cs" />
+    <Compile Include="Models\ConnectionPoints\ConnectPointAnalizator.cs" />
     <Compile Include="Models\DataEdge.cs" />
     <Compile Include="Models\DataVertex.cs" />
     <Compile Include="Models\GraphAreaExample .cs" />
@@ -106,6 +107,7 @@
     <Compile Include="Models\GXLogicCoreExample.cs" />
     <Compile Include="Models\AlgorithmTools\PointWithDirection.cs" />
     <Compile Include="Models\OrthogonalEdgeRoutingAlgorithm.cs" />
+    <Compile Include="Models\OrthogonalTools\OvgVertex.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
