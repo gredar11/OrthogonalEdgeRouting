@@ -126,7 +126,7 @@ namespace GraphxOrtho
             var logicCore = new GXLogicCoreExample() { Graph = GraphExample_Setup() };
             //This property sets layout algorithm that will be used to calculate vertices positions
             //Different algorithms uses different values and some of them uses edge Weight property.
-            logicCore.DefaultLayoutAlgorithm = LayoutAlgorithmTypeEnum.KK;
+            logicCore.DefaultLayoutAlgorithm = LayoutAlgorithmTypeEnum.FR;
             //Now we can set parameters for selected algorithm using AlgorithmFactory property. This property provides methods for
             //creating all available algorithms and algo parameters.
             logicCore.DefaultLayoutAlgorithmParams = logicCore.AlgorithmFactory.CreateLayoutParameters(LayoutAlgorithmTypeEnum.KK);
@@ -224,6 +224,34 @@ namespace GraphxOrtho
 
                 }
             }
+            var orthogonalGraph = (Area.LogicCore.ExternalEdgeRoutingAlgorithm as OrthogonalEdgeRoutingAlgorithm<DataVertex, DataEdge>).OrthogonalVisibilityGraph;
+            foreach (var edge in orthogonalGraph.AdjacencyGraph.Edges)
+            {
+                var stroke = Brushes.Green;
+                var strokeThickness = 1.0;
+
+                var lineToAdd = new Line()
+                {
+                    X1 = edge.Source.Point.X,
+                    Y1 = edge.Source.Point.Y,
+                    X2 = edge.Target.Point.X,
+                    Y2 = edge.Target.Point.Y,
+                    Stroke = stroke,
+                    StrokeThickness = strokeThickness
+                };
+
+                Area.AddCustomChildControl(lineToAdd);
+                var sourceCircle = new Ellipse()
+                {
+                    Width = 4,
+                    Height = 4,
+                    Stroke = Brushes.Black,
+                    StrokeThickness = 1
+                };
+                Area.AddCustomChildControl(sourceCircle);
+                GraphAreaBase.SetX(sourceCircle, edge.Source.Point.X - 2);
+                GraphAreaBase.SetY(sourceCircle, edge.Source.Point.Y - 2);
+            }
             return;
             //var vertexOfFirstEdge = firstEdge.Value.Source;
 
@@ -274,18 +302,8 @@ namespace GraphxOrtho
                 GraphAreaBase.SetX(sourceCircle, dataControl.GetPosition().X - 2);
                 GraphAreaBase.SetY(sourceCircle, dataControl.GetPosition().Y - 2);
             }
-            //foreach (var item in orthogonalVertices)
-            //{
-            //    foreach (var line in item.HorizontalSegments)
-            //    {
-            //        Area.AddCustomChildControl(line);
-            //    }
-            //    foreach (var line in item.VerticalSegments)
-            //    {
-            //        Area.AddCustomChildControl(line);
-            //    }
-
-            //}
+            
+            
 
             OrthogonalVisibilityGraph orthogonalVisibilityGraph = new OrthogonalVisibilityGraph(orthogonalVertices);
 

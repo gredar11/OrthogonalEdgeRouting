@@ -3,6 +3,7 @@ using GraphX.Measure;
 using GraphxOrtho.Models.OrthogonalTools;
 using QuickGraph;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 
 namespace GraphxOrtho.Models
@@ -15,6 +16,7 @@ namespace GraphxOrtho.Models
         public IDictionary<TVertex, Rect> VertexSizes { get; set; }
         public IDictionary<TVertex, Point> VertexPositions { get; set; }
         public IDictionary<TVertex, OvgVertex<TVertex>> OvgVertices { get; set; }
+        public OrthogonalVisibilityGraphMod<TVertex, TEdge> OrthogonalVisibilityGraph { get; set; }
         public Rect AreaRectangle { get; set; }
         readonly Dictionary<TEdge, Point[]> _edgeRoutes = new Dictionary<TEdge, Point[]>();
         public IDictionary<TEdge, Point[]> EdgeRoutes { get { return _edgeRoutes; } }
@@ -34,8 +36,9 @@ namespace GraphxOrtho.Models
             }
             foreach(var edge in Graph.Edges)
             {
-                AddConnectionPoints(edge);
+                AddConnectionPoints(edge, leftTopEndOfGraph, rightBottomEndOfGraph);
             }
+            OrthogonalVisibilityGraph = new OrthogonalVisibilityGraphMod<TVertex, TEdge>(OvgVertices.Values.ToList());
         }
 
         private void GetBorderAreaPoints(ref Point leftTopEndOfGraph, ref Point rightBottomEndOfGraph)
@@ -64,12 +67,13 @@ namespace GraphxOrtho.Models
         {
             
         }
-        private void AddConnectionPoints(TEdge edge)
+        private void AddConnectionPoints(TEdge edge, Point leftTopPoint, Point rightBotPoint)
         {
             var source = OvgVertices[edge.Source];
             var target = OvgVertices[edge.Target];
             GeometryAnalizator<TVertex,TEdge>.SetConnectionPointsToVerticesOfEdge(source, target, edge);
-
+            source.SetConnectionEdges(leftTopPoint, rightBotPoint, edge);
+            target.SetConnectionEdges(leftTopPoint, rightBotPoint, edge);
         }
     }
 }
