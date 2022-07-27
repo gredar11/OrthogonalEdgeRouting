@@ -1,12 +1,9 @@
 ﻿using GraphX.Common.Interfaces;
 using GraphX.Measure;
+using GraphxOrtho.Models.OrthogonalTools;
 using QuickGraph;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace GraphxOrtho.Models
 {
@@ -17,6 +14,7 @@ namespace GraphxOrtho.Models
     {
         public IDictionary<TVertex, Rect> VertexSizes { get; set; }
         public IDictionary<TVertex, Point> VertexPositions { get; set; }
+        public IDictionary<TVertex, OvgVertex<TVertex>> OvgVertices { get; set; }
         public Rect AreaRectangle { get; set; }
         readonly Dictionary<TEdge, Point[]> _edgeRoutes = new Dictionary<TEdge, Point[]>();
         public IDictionary<TEdge, Point[]> EdgeRoutes { get { return _edgeRoutes; } }
@@ -25,11 +23,35 @@ namespace GraphxOrtho.Models
         
         public void Compute(CancellationToken cancellationToken)
         {
-            foreach (var item in Graph.Edges)
-            {
-                var source = item.Source;
-                var srcPos = VertexPositions[source];
+            OvgVertices = new Dictionary<TVertex, OvgVertex<TVertex>>();
+            Point leftTopEndOfGraph = new Point(0, 0);
+            Point rightBottomEndOfGraph = new Point(0, 0);
+            GetBorderAreaPoints(ref leftTopEndOfGraph, ref rightBottomEndOfGraph);
 
+            foreach(var vertex in VertexSizes)
+            {
+                OvgVertices[vertex.Key] = new OvgVertex<TVertex>(vertex.Value, leftTopEndOfGraph, rightBottomEndOfGraph, 5.0);
+            }
+            foreach(var edge in Graph.Edges)
+            {
+                AddConnectionPoints(edge);
+            }
+        }
+
+        private void GetBorderAreaPoints(ref Point leftTopEndOfGraph, ref Point rightBottomEndOfGraph)
+        {
+            foreach (var vertex in VertexSizes)
+            {
+                Point positionOfNode = vertex.Value.Location;
+                if (positionOfNode.X + vertex.Value.Width > rightBottomEndOfGraph.X)
+                    rightBottomEndOfGraph.X = positionOfNode.X + vertex.Value.Width;
+                if (positionOfNode.X < leftTopEndOfGraph.X)
+                    leftTopEndOfGraph.X = positionOfNode.X;
+                if (positionOfNode.Y + vertex.Value.Height > rightBottomEndOfGraph.Y)
+                    rightBottomEndOfGraph.Y = positionOfNode.Y + vertex.Value.Height;
+                if (positionOfNode.Y < leftTopEndOfGraph.Y)
+                    leftTopEndOfGraph.Y = positionOfNode.Y;
+                // creating vertex with bounds and vertical + horizontal segments
             }
         }
 
@@ -41,6 +63,13 @@ namespace GraphxOrtho.Models
         public void UpdateVertexData(TVertex vertex, Point position, Rect size)
         {
             
+        }
+        private void AddConnectionPoints(TEdge edge)
+        {
+            var source = OvgVertices[edge.Source];
+            var target = OvgVertices[edge.Target];
+            GeometryAnalizator<TVertex,TEdge>.SetConnectionPointsToVerticesOfEdge(source, target, edge);
+
         }
     }
 }

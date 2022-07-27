@@ -168,7 +168,7 @@ namespace GraphxOrtho
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            Area.RelayoutGraph();
+            Area.RelayoutGraph(false);
             // Удаляем все линии с графа, чтобы нарисовать новые.
             #region Рисуем оси X и Y и удаляем все предыдущие построения линий и кругов.
             var allLines = Area.GetChildControls<Line>().ToList();
@@ -206,7 +206,25 @@ namespace GraphxOrtho
             #endregion
 
             //var sourcePointOfEdge = GetSourcePointOfEdge(firstEdge);
+            var ovgVertices = (Area.LogicCore.ExternalEdgeRoutingAlgorithm as OrthogonalEdgeRoutingAlgorithm<DataVertex, DataEdge>).OvgVertices;
+            foreach (var vertex in ovgVertices.Values)
+            {
+                foreach (var connPoint in vertex.ConnectionPoints.Values)
+                {
+                    var sourceCircle = new Ellipse()
+                    {
+                        Width = 4,
+                        Height = 4,
+                        Stroke = Brushes.Black,
+                        StrokeThickness = 1
+                    };
+                    Area.AddCustomChildControl(sourceCircle);
+                    GraphAreaBase.SetX(sourceCircle, connPoint.X - 2);
+                    GraphAreaBase.SetY(sourceCircle, connPoint.Y - 2);
 
+                }
+            }
+            return;
             //var vertexOfFirstEdge = firstEdge.Value.Source;
 
             List<OrthogonalVertex> orthogonalVertices = new List<OrthogonalVertex>();
@@ -288,16 +306,16 @@ namespace GraphxOrtho
                     Stroke = stroke,
                     StrokeThickness = strokeThickness
                 };
-                if (IsLineHorizontal(lineToAdd))
-                {
-                    lineToAdd.X1 = lineToAdd.X1;
-                    lineToAdd.X2 = lineToAdd.X2;
-                }
-                else
-                {
-                    lineToAdd.Y1 = lineToAdd.Y1;
-                    lineToAdd.Y2 = lineToAdd.Y2;
-                }
+                //if (IsLineHorizontal(lineToAdd))
+                //{
+                //    lineToAdd.X1 = lineToAdd.X1;
+                //    lineToAdd.X2 = lineToAdd.X2;
+                //}
+                //else
+                //{
+                //    lineToAdd.Y1 = lineToAdd.Y1;
+                //    lineToAdd.Y2 = lineToAdd.Y2;
+                //}
                 Area.AddCustomChildControl(lineToAdd);
                 var sourceCircle = new Ellipse()
                 {

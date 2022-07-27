@@ -4,10 +4,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{BA08E120-BCB5-4A84-9816-17053CADF4CA}</ProjectGuid>
+    <ProjectGuid>{79DDD85F-45FF-4446-ACAC-6314C3A73B00}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>GraphxOrtho</RootNamespace>
-    <AssemblyName>GraphxOrtho</AssemblyName>
+    <RootNamespace>OrthogonalER</RootNamespace>
+    <AssemblyName>OrthogonalER</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -34,10 +34,6 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup>
-    <StartupObject>
-    </StartupObject>
-  </PropertyGroup>
   <ItemGroup>
     <Reference Include="GraphX.Standard.Common, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\GraphX.3.0.0\lib\net461\GraphX.Standard.Common.dll</HintPath>
@@ -47,9 +43,6 @@
     </Reference>
     <Reference Include="GraphX.WPF.Controls, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\GraphX.3.0.0\lib\net461\GraphX.WPF.Controls.dll</HintPath>
-    </Reference>
-    <Reference Include="PriorityQueue, Version=5.0.0.0, Culture=neutral, PublicKeyToken=5e136dbf0437dacd, processorArchitecture=MSIL">
-      <HintPath>..\packages\OptimizedPriorityQueue.5.1.0\lib\net45\PriorityQueue.dll</HintPath>
     </Reference>
     <Reference Include="QuickGraph, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\QuickGraphCore.1.0.0\lib\net40\QuickGraph.dll</HintPath>
@@ -74,10 +67,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Page Include="Dictionary1.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -92,21 +81,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Models\AlgorithmTools\DebugHelper.cs" />
-    <Compile Include="Models\AlgorithmTools\GeometryAnalizator.cs" />
-    <Compile Include="Models\AlgorithmTools\OrthogonalVertex.cs" />
-    <Compile Include="Models\AlgorithmTools\OrthogonalVisibilityGraph.cs" />
-    <Compile Include="Models\ConnectionPoints\ConnectPointAnalizator.cs" />
-    <Compile Include="Models\DataEdge.cs" />
-    <Compile Include="Models\DataVertex.cs" />
-    <Compile Include="Models\GraphAreaExample .cs" />
-    <Compile Include="Models\GraphExample.cs" />
-    <Compile Include="Models\GXLogicCoreExample.cs" />
-    <Compile Include="Models\AlgorithmTools\PointWithDirection.cs" />
-    <Compile Include="Models\OrthogonalEdgeRoutingAlgorithm.cs" />
-    <Compile Include="Models\OrthogonalTools\GeometryAnalizator.cs" />
-    <Compile Include="Models\OrthogonalTools\OrthogonalVisibilityGraph.cs" />
-    <Compile Include="Models\OrthogonalTools\OvgVertex.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -132,9 +106,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Untitled Diagram.drawio %281%29.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace GraphxOrtho.Models.OrthogonalTools
 {
-    internal class OvgVertex<TVertex> where TVertex : class, IGraphXVertex
+    public class OvgVertex<TVertex> where TVertex : class, IGraphXVertex
     {
         public IGraphXVertex DataVertex { get; set; }
         public Point Position { get; }
@@ -14,10 +14,11 @@ namespace GraphxOrtho.Models.OrthogonalTools
         public Rect SizeOfVertex { get; }
         public List<Line> HorizontalSegments { get; }
         public List<Line> VerticalSegments { get; }
-        public Dictionary<IGraphXEdge<TVertex>, System.Windows.Point> ConnectionPoints { get; set; }
+        public Dictionary<IGraphXEdge<TVertex>, Point> ConnectionPoints { get; set; }
 
-        public OvgVertex(Rect vertexSize, Point leftTopPoint, Point rightBottomPoint, double marginBetweenEdgeAndNode, IDictionary<IGraphXVertex, Rect> neighbours)
+        public OvgVertex(Rect vertexSize, Point leftTopPoint, Point rightBottomPoint, double marginBetweenEdgeAndNode)
         {
+            ConnectionPoints = new Dictionary<IGraphXEdge<TVertex>, Point>();
             SizeOfVertex = vertexSize;
             Position = SizeOfVertex.Location;
             VerticalSegments = new List<Line>();
@@ -25,7 +26,6 @@ namespace GraphxOrtho.Models.OrthogonalTools
             MarginToEdge = marginBetweenEdgeAndNode;
             // adding HorizontalSegments
             SetBordersToVertex(leftTopPoint, rightBottomPoint);
-            SetConnectionEdges(leftTopPoint, rightBottomPoint, neighbours);
         }
 
         private void SetBordersToVertex(Point leftTopPoint, Point rightBottomPoint)
@@ -61,30 +61,9 @@ namespace GraphxOrtho.Models.OrthogonalTools
             });
         }
 
-        public void SetConnectionEdges(Point leftTop, Point rightBottom, IDictionary<IGraphXVertex, Rect> neighbours)
+        public void SetConnectionEdges(Point leftTop, Point rightBottom, IGraphXEdge<TVertex> edge)
         {
-            var topNeighbours = from v in neighbours where v.Value.Location.X == Position.X && v.Value.Location.Y > Position.Y select v;
-            var bottomNeighbours = from v in neighbours where v.Value.Location.Y < Position.Y select v;
-            var rightNeighbours = from v in neighbours where (v.Value.Location.X == Position.X && v.Value.Location.Y < Position.Y) || v.Value.Location.Y > Position.Y select v;
-
-
-            //var relatedEdges = VertexControl.RootArea.GetRelatedEdgeControls(VertexControl);
-            //foreach (var edge in relatedEdges)
-            //{
-            //    var edgeData = edge as EdgeControl;
-            //    if (VertexControl.Equals(edgeData.Source))
-            //    {
-            //        Point conPoint = GetSourcePointOfEdge(edgeData);
-            //        AddSegmentByPoint(conPoint, leftTop, rightBottom);
-            //        ConnectionPoints.Add(conPoint);
-            //    }
-            //    if (VertexControl.Equals(edgeData.Target))
-            //    {
-            //        Point conPoint = GetTargetPointOfEdge(edgeData);
-            //        AddSegmentByPoint(conPoint, leftTop, rightBottom);
-            //        ConnectionPoints.Add(conPoint);
-            //    }
-            //}
+            AddSegmentByPoint(ConnectionPoints[edge], leftTop, rightBottom);
         }
 
         public void AddSegmentByPoint(Point connectionPoint, Point leftTop, Point rightBottom)
