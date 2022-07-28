@@ -48,8 +48,9 @@ namespace GraphxOrtho.Models.OrthogonalTools
                 if(currentPoint.DireciontPoint.Point == destinationPoint.DireciontPoint.Point)
                     destinationReached = true;
             }
+            path.Add(currentPoint);
             var toAddInList = currentPoint.ParentPoint;
-            while( toAddInList != null)
+            while ( toAddInList != null)
             {
                 path.Add(toAddInList);
                 toAddInList = toAddInList.ParentPoint;

@@ -14,10 +14,10 @@ namespace GraphxOrtho.Models.OrthogonalTools
         where TVertex : class, IGraphXVertex
     {
         public List<OvgVertex<TVertex>> MainGraphVertices { get; set; }
-        public AdjacencyGraph<PointWithDirection, Edge<PointWithDirection>> AdjacencyGraph { get; set; }
+        public BidirectionalGraph<PointWithDirection, Edge<PointWithDirection>> BiderectionalGraph { get; set; }
         public OrthogonalVisibilityGraphMod(List<OvgVertex<TVertex>> mainGraphVertices)
         {
-            AdjacencyGraph = new AdjacencyGraph<PointWithDirection, Edge<PointWithDirection>>();
+            BiderectionalGraph = new BidirectionalGraph<PointWithDirection, Edge<PointWithDirection>>();
             MainGraphVertices = mainGraphVertices;
             foreach (var vertex in MainGraphVertices)
             {
@@ -181,7 +181,7 @@ namespace GraphxOrtho.Models.OrthogonalTools
                     for (int i = 1; i < pointssortedByX.Count; i++)
                     {
                         Edge<PointWithDirection> edge = new Edge<PointWithDirection>(pointssortedByX[i - 1], pointssortedByX[i]);
-                        AdjacencyGraph.AddVerticesAndEdge(edge);
+                        BiderectionalGraph.AddVerticesAndEdge(edge);
                     }
                 }
                 else
@@ -193,7 +193,7 @@ namespace GraphxOrtho.Models.OrthogonalTools
                     for (int i = 1; i < pointssortedByY.Count; i++)
                     {
                         Edge<PointWithDirection> edge = new Edge<PointWithDirection>(pointssortedByY[i - 1], pointssortedByY[i]);
-                        AdjacencyGraph.AddVerticesAndEdge(edge);
+                        BiderectionalGraph.AddVerticesAndEdge(edge);
                     }
                 }
             }
@@ -214,16 +214,16 @@ namespace GraphxOrtho.Models.OrthogonalTools
             double leftSide = ovgVertex.Position.X;
             double rightSide = ovgVertex.Position.X + ovgVertex.SizeOfVertex.Width;
             if (connectionPoint.Y == topSide)
-                AdjacencyGraph.AddVerticesAndEdge(new Edge<PointWithDirection>(new PointWithDirection() { Point = new Point(connectionPoint.X, connectionPoint.Y) }, new PointWithDirection() { Point = new Point { X = connectionPoint.X, Y = connectionPoint.Y - ovgVertex.MarginToEdge} }));
+                BiderectionalGraph.AddVerticesAndEdge(new Edge<PointWithDirection>(new PointWithDirection() { Point = new Point(connectionPoint.X, connectionPoint.Y) }, new PointWithDirection() { Point = new Point { X = connectionPoint.X, Y = connectionPoint.Y - ovgVertex.MarginToEdge} }));
             
             if (connectionPoint.X == rightSide)
-                AdjacencyGraph.AddVerticesAndEdge(new Edge<PointWithDirection>(new PointWithDirection() { Point = new Point(connectionPoint.X, connectionPoint.Y) }, new PointWithDirection() { Point = new Point { X = connectionPoint.X + ovgVertex.MarginToEdge, Y = connectionPoint.Y } }));
+                BiderectionalGraph.AddVerticesAndEdge(new Edge<PointWithDirection>(new PointWithDirection() { Point = new Point(connectionPoint.X, connectionPoint.Y) }, new PointWithDirection() { Point = new Point { X = connectionPoint.X + ovgVertex.MarginToEdge, Y = connectionPoint.Y } }));
 
             if (connectionPoint.Y == bottomSide)
-                AdjacencyGraph.AddVerticesAndEdge(new Edge<PointWithDirection>(new PointWithDirection() { Point = new Point(connectionPoint.X, connectionPoint.Y) }, new PointWithDirection() { Point = new Point { X = connectionPoint.X, Y = connectionPoint.Y + ovgVertex.MarginToEdge} }));
+                BiderectionalGraph.AddVerticesAndEdge(new Edge<PointWithDirection>(new PointWithDirection() { Point = new Point(connectionPoint.X, connectionPoint.Y) }, new PointWithDirection() { Point = new Point { X = connectionPoint.X, Y = connectionPoint.Y + ovgVertex.MarginToEdge} }));
 
             if (connectionPoint.X == leftSide)
-                AdjacencyGraph.AddVerticesAndEdge(new Edge<PointWithDirection>(new PointWithDirection() { Point = new Point(connectionPoint.X, connectionPoint.Y) }, new PointWithDirection() { Point = new Point { X = connectionPoint.X - ovgVertex.MarginToEdge, Y = connectionPoint.Y} }));
+                BiderectionalGraph.AddVerticesAndEdge(new Edge<PointWithDirection>(new PointWithDirection() { Point = new Point(connectionPoint.X, connectionPoint.Y) }, new PointWithDirection() { Point = new Point { X = connectionPoint.X - ovgVertex.MarginToEdge, Y = connectionPoint.Y} }));
 
         }
         private static bool IsLineHorizontal(Line line)
@@ -233,10 +233,12 @@ namespace GraphxOrtho.Models.OrthogonalTools
         public List<PriorityPoint> InitializeNeighbours(PriorityPoint parentPoint)
         {
             // находим соседние ветви
-            var outEdges = AdjacencyGraph.OutEdges(parentPoint.DireciontPoint);
+            var outEdges = BiderectionalGraph.OutEdges(parentPoint.DireciontPoint);
+            var inEdges = BiderectionalGraph.InEdges(parentPoint.DireciontPoint);
+            var allAjacenceEdges = outEdges.Union(inEdges);
             // добавляем узлы-соседей если они не были прошлыми родителями
             List<PointWithDirection> neighbours = new List<PointWithDirection>();
-            foreach (Edge<PointWithDirection> edge in outEdges)
+            foreach (Edge<PointWithDirection> edge in allAjacenceEdges)
             {
                 var otherSideVertex = parentPoint.DireciontPoint.Point == edge.Source.Point ? edge.Target : edge.Source;
                 if (parentPoint.ParentPoint == null || parentPoint.ParentPoint.DireciontPoint != otherSideVertex)

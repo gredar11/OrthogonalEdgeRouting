@@ -100,22 +100,10 @@ namespace GraphxOrtho
             //Then create two edges optionaly defining Text property to show who are connected
             var dataEdge = new DataEdge(vlist[0], vlist[1]) { };
             dataGraph.AddEdge(dataEdge);
-            //dataEdge = new DataEdge(vlist[1], vlist[0]) {  };
-            //dataGraph.AddEdge(dataEdge);
-            //dataEdge = new DataEdge(vlist[2], vlist[0]) { };
-            //dataGraph.AddEdge(dataEdge);
-            //dataEdge = new DataEdge(vlist[0], vlist[3]) { };
-            //dataGraph.AddEdge(dataEdge);
-            ////dataEdge = new DataEdge(vlist[2], vlist[3]) { };
-            ////dataGraph.AddEdge(dataEdge);
-            //dataEdge = new DataEdge(vlist[4], vlist[0]) { };
-            //dataGraph.AddEdge(dataEdge);
-            //dataEdge = new DataEdge(vlist[5], vlist[4]) { };
-            //dataGraph.AddEdge(dataEdge);
-            //dataEdge = new DataEdge(vlist[3], vlist[5]) { };
-            //dataGraph.AddEdge(dataEdge);
-            //dataEdge = new DataEdge(vlist[1], vlist[3]) { };
-            //dataGraph.AddEdge(dataEdge);
+            
+            var v1 = dataGraph.Vertices.First();
+            var hasInEdges = dataGraph.TryGetInEdges(v1, out IEnumerable<DataEdge> inedges);
+            var hasOutEdges = dataGraph.TryGetOutEdges(v1, out IEnumerable<DataEdge> outedges);
             return dataGraph;
         }
 
@@ -224,58 +212,58 @@ namespace GraphxOrtho
                 }
             }
             var orthogonalGraph = (Area.LogicCore.ExternalEdgeRoutingAlgorithm as OrthogonalEdgeRoutingAlgorithm<DataVertex, DataEdge>).OrthogonalVisibilityGraph;
-            foreach (var edge in orthogonalGraph.AdjacencyGraph.Edges)
-            {
-                var stroke = Brushes.Green;
-                var strokeThickness = 1.0;
+            //foreach (var edge in orthogonalGraph.BiderectionalGraph.Edges)
+            //{
+            //    var stroke = Brushes.Green;
+            //    var strokeThickness = 1.0;
 
-                if(edge.Source.Point.X == edge.Target.Point.X)
-                {
-                    var lineToAdd = new Line()
-                    {
-                        X1 = edge.Source.Point.X,
-                        Y1 = edge.Source.Point.Y + (edge.Source.Point.Y > edge.Target.Point.Y ? -1 : 1),
-                        X2 = edge.Target.Point.X,
-                        Y2 = edge.Target.Point.Y + (edge.Source.Point.Y > edge.Target.Point.Y ? 1 : -1),
-                        Stroke = stroke,
-                        StrokeThickness = strokeThickness
-                    };
+            //    if(edge.Source.Point.X == edge.Target.Point.X)
+            //    {
+            //        var lineToAdd = new Line()
+            //        {
+            //            X1 = edge.Source.Point.X,
+            //            Y1 = edge.Source.Point.Y + (edge.Source.Point.Y > edge.Target.Point.Y ? -1 : 1),
+            //            X2 = edge.Target.Point.X,
+            //            Y2 = edge.Target.Point.Y + (edge.Source.Point.Y > edge.Target.Point.Y ? 1 : -1),
+            //            Stroke = stroke,
+            //            StrokeThickness = strokeThickness
+            //        };
 
-                    Area.AddCustomChildControl(lineToAdd);
-                }
-                if(edge.Source.Point.Y == edge.Target.Point.Y)
-                {
-                    var lineToAdd = new Line()
-                    {
-                        X1 = edge.Source.Point.X + (edge.Source.Point.X > edge.Target.Point.X ? -1 : 1),
-                        Y1 = edge.Source.Point.Y,
-                        X2 = edge.Target.Point.X - (edge.Source.Point.X > edge.Target.Point.X ? -1 : 1),
-                        Y2 = edge.Target.Point.Y,
-                        Stroke = stroke,
-                        StrokeThickness = strokeThickness
-                    };
+            //        Area.AddCustomChildControl(lineToAdd);
+            //    }
+            //    if(edge.Source.Point.Y == edge.Target.Point.Y)
+            //    {
+            //        var lineToAdd = new Line()
+            //        {
+            //            X1 = edge.Source.Point.X + (edge.Source.Point.X > edge.Target.Point.X ? -1 : 1),
+            //            Y1 = edge.Source.Point.Y,
+            //            X2 = edge.Target.Point.X - (edge.Source.Point.X > edge.Target.Point.X ? -1 : 1),
+            //            Y2 = edge.Target.Point.Y,
+            //            Stroke = stroke,
+            //            StrokeThickness = strokeThickness
+            //        };
 
-                    Area.AddCustomChildControl(lineToAdd);
-                }
+            //        Area.AddCustomChildControl(lineToAdd);
+            //    }
                 
-                var sourceCircle = new Ellipse()
-                {
-                    Width = 4,
-                    Height = 4,
-                    Stroke = Brushes.Black,
-                    StrokeThickness = 1
-                };
-                Area.AddCustomChildControl(sourceCircle);
-                GraphAreaBase.SetX(sourceCircle, edge.Source.Point.X - 2);
-                GraphAreaBase.SetY(sourceCircle, edge.Source.Point.Y - 2);
-            }
+            //    var sourceCircle = new Ellipse()
+            //    {
+            //        Width = 4,
+            //        Height = 4,
+            //        Stroke = Brushes.Black,
+            //        StrokeThickness = 1
+            //    };
+            //    Area.AddCustomChildControl(sourceCircle);
+            //    GraphAreaBase.SetX(sourceCircle, edge.Source.Point.X - 2);
+            //    GraphAreaBase.SetY(sourceCircle, edge.Source.Point.Y - 2);
+            //}
             var algorithmBaseClass = (Area.LogicCore.ExternalEdgeRoutingAlgorithm as OrthogonalEdgeRoutingAlgorithm<DataVertex, DataEdge>);
             var edgeToDraw = algorithmBaseClass.Graph.Edges.First();
             var startVertex = algorithmBaseClass.OvgVertices[edgeToDraw.Source];
             var endVertex = algorithmBaseClass.OvgVertices[edgeToDraw.Target];
             var startPoint = startVertex.ConnectionPoints[edgeToDraw];
             var endPoint = endVertex.ConnectionPoints[edgeToDraw];
-            var orthogonalVertices = algorithmBaseClass.OrthogonalVisibilityGraph.AdjacencyGraph.Vertices;
+            var orthogonalVertices = algorithmBaseClass.OrthogonalVisibilityGraph.BiderectionalGraph.Vertices;
 
             var strartPointInAdjacecnyGraph = (from v in orthogonalVertices where v.Point == startPoint select v).FirstOrDefault();
             strartPointInAdjacecnyGraph.Direction = startVertex.GetDirectionOfPoint(strartPointInAdjacecnyGraph.Point);
@@ -285,7 +273,21 @@ namespace GraphxOrtho
             PriorityPoint start = new PriorityPoint(strartPointInAdjacecnyGraph, null);
             PriorityPoint end = new PriorityPoint(endPointInAdjacecnyGraph, null);
             PriorityAlgorithm<DataVertex,DataEdge> algorithm = new PriorityAlgorithm<DataVertex, DataEdge>(start, end, algorithmBaseClass.OrthogonalVisibilityGraph);
-            //var path = algorithm.CalculatePath();
+            var path = algorithm.CalculatePath();
+            for (int i = 1; i < path.Count; i++)
+            {
+                var lineToAdd = new Line()
+                {
+                    X1 = path[i - 1].DireciontPoint.Point.X,
+                    Y1 = path[i - 1].DireciontPoint.Point.Y,
+                    X2 = path[i].DireciontPoint.Point.X,
+                    Y2 = path[i].DireciontPoint.Point.Y,
+                    Stroke = Brushes.Red,
+                    StrokeThickness = 1.5
+                };
+
+                Area.AddCustomChildControl(lineToAdd);
+            }
             return;
         }
         public class PointWdComparer : IComparer
