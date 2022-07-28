@@ -2,10 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows;
 using QuickGraph;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using GraphX.Measure;
 
 namespace GraphxOrtho.Models.AlgorithmTools
 {
@@ -123,7 +123,7 @@ namespace GraphxOrtho.Models.AlgorithmTools
             Array.Sort(horizontalDiapazonX);
             if (verticalSegment.X1 >= horizontalDiapazonX[0] && verticalSegment.X1 <= horizontalDiapazonX[1]
                 && horizontalSegment.Y1 >= verticalDiapazonY[0] && horizontalSegment.Y1 <= verticalDiapazonY[1])
-                return new PointWithDirection() { Point = new System.Windows.Point(verticalSegment.X1, horizontalSegment.Y1) };
+                return new PointWithDirection() { Point = new Point(verticalSegment.X1, horizontalSegment.Y1) };
             return null;
         }
         public void AddOvgToZoomControl()

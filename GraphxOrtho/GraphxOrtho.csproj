@@ -107,6 +107,9 @@
     <Compile Include="Models\OrthogonalTools\GeometryAnalizator.cs" />
     <Compile Include="Models\OrthogonalTools\OrthogonalVisibilityGraph.cs" />
     <Compile Include="Models\OrthogonalTools\OvgVertex.cs" />
+    <Compile Include="Models\OrthogonalTools\PriorityAlgorithm.cs" />
+    <Compile Include="Models\OrthogonalTools\PriorityPoint.cs" />
+    <Compile Include="Models\OrthogonalTools\PriorityPointComparer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

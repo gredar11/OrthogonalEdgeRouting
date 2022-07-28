@@ -125,7 +125,7 @@ namespace GraphxOrtho.Models.OrthogonalTools
             Array.Sort(horizontalDiapazonX);
             if (verticalSegment.X1 >= horizontalDiapazonX[0] && verticalSegment.X1 <= horizontalDiapazonX[1]
                 && horizontalSegment.Y1 >= verticalDiapazonY[0] && horizontalSegment.Y1 <= verticalDiapazonY[1])
-                return new PointWithDirection() { Point = new System.Windows.Point(verticalSegment.X1, horizontalSegment.Y1) };
+                return new PointWithDirection() { Point = new Point(verticalSegment.X1, horizontalSegment.Y1) };
             return null;
         }
         public void AddOvgToZoomControl()
@@ -214,26 +214,64 @@ namespace GraphxOrtho.Models.OrthogonalTools
             double leftSide = ovgVertex.Position.X;
             double rightSide = ovgVertex.Position.X + ovgVertex.SizeOfVertex.Width;
             if (connectionPoint.Y == topSide)
-                AdjacencyGraph.AddVerticesAndEdge(new Edge<PointWithDirection>(new PointWithDirection() { Point = new System.Windows.Point(connectionPoint.X, connectionPoint.Y) }, new PointWithDirection() { Point = new System.Windows.Point { X = connectionPoint.X, Y = connectionPoint.Y - ovgVertex.MarginToEdge} }));
+                AdjacencyGraph.AddVerticesAndEdge(new Edge<PointWithDirection>(new PointWithDirection() { Point = new Point(connectionPoint.X, connectionPoint.Y) }, new PointWithDirection() { Point = new Point { X = connectionPoint.X, Y = connectionPoint.Y - ovgVertex.MarginToEdge} }));
             
             if (connectionPoint.X == rightSide)
-                AdjacencyGraph.AddVerticesAndEdge(new Edge<PointWithDirection>(new PointWithDirection() { Point = new System.Windows.Point(connectionPoint.X, connectionPoint.Y) }, new PointWithDirection() { Point = new System.Windows.Point { X = connectionPoint.X + ovgVertex.MarginToEdge, Y = connectionPoint.Y } }));
+                AdjacencyGraph.AddVerticesAndEdge(new Edge<PointWithDirection>(new PointWithDirection() { Point = new Point(connectionPoint.X, connectionPoint.Y) }, new PointWithDirection() { Point = new Point { X = connectionPoint.X + ovgVertex.MarginToEdge, Y = connectionPoint.Y } }));
 
             if (connectionPoint.Y == bottomSide)
-                AdjacencyGraph.AddVerticesAndEdge(new Edge<PointWithDirection>(new PointWithDirection() { Point = new System.Windows.Point(connectionPoint.X, connectionPoint.Y) }, new PointWithDirection() { Point = new System.Windows.Point { X = connectionPoint.X, Y = connectionPoint.Y + ovgVertex.MarginToEdge} }));
+                AdjacencyGraph.AddVerticesAndEdge(new Edge<PointWithDirection>(new PointWithDirection() { Point = new Point(connectionPoint.X, connectionPoint.Y) }, new PointWithDirection() { Point = new Point { X = connectionPoint.X, Y = connectionPoint.Y + ovgVertex.MarginToEdge} }));
 
             if (connectionPoint.X == leftSide)
-                AdjacencyGraph.AddVerticesAndEdge(new Edge<PointWithDirection>(new PointWithDirection() { Point = new System.Windows.Point(connectionPoint.X, connectionPoint.Y) }, new PointWithDirection() { Point = new System.Windows.Point { X = connectionPoint.X - ovgVertex.MarginToEdge, Y = connectionPoint.Y} }));
+                AdjacencyGraph.AddVerticesAndEdge(new Edge<PointWithDirection>(new PointWithDirection() { Point = new Point(connectionPoint.X, connectionPoint.Y) }, new PointWithDirection() { Point = new Point { X = connectionPoint.X - ovgVertex.MarginToEdge, Y = connectionPoint.Y} }));
 
         }
         private static bool IsLineHorizontal(Line line)
         {
             return line.Y1 == line.Y2;
         }
-        private void TestFunction()
+        public List<PriorityPoint> InitializeNeighbours(PriorityPoint parentPoint)
         {
-            var graph = new AdjacencyGraph<OvgVertex<TVertex>, Edge<OvgVertex<TVertex>>>();
-
+            // находим соседние ветви
+            var outEdges = AdjacencyGraph.OutEdges(parentPoint.DireciontPoint);
+            // добавляем узлы-соседей если они не были прошлыми родителями
+            List<PointWithDirection> neighbours = new List<PointWithDirection>();
+            foreach (Edge<PointWithDirection> edge in outEdges)
+            {
+                var otherSideVertex = parentPoint.DireciontPoint.Point == edge.Source.Point ? edge.Target : edge.Source;
+                if (parentPoint.ParentPoint == null || parentPoint.ParentPoint.DireciontPoint != otherSideVertex)
+                    neighbours.Add(otherSideVertex);
+            }
+            List<PriorityPoint> neigrboursToReturn = new List<PriorityPoint>();
+            foreach (var neighbour in neighbours)
+            {
+                // по каждому узлу создаем узел приоритета.
+                PriorityPoint priorityPoint = new PriorityPoint(neighbour, parentPoint);
+                // для точки с направлением устанавливаем направление.
+                priorityPoint.DireciontPoint.Direction = GetDestinationPointDirection(parentPoint.DireciontPoint.Point, priorityPoint.DireciontPoint.Point);
+                neigrboursToReturn.Add(priorityPoint);
+            }
+            return neigrboursToReturn;
+        }
+        public Direction GetDestinationPointDirection(Point source, Point target)
+        {
+            if (source == target)
+                throw new Exception("Can't get Direction to equal points!");
+            if(source.X == target.X)
+            {
+                if(target.Y > source.Y)
+                    return Direction.North;
+                if (target.Y < source.Y)
+                    return Direction.South;
+            }
+            if(source.Y == target.Y)
+            {
+                if(target.X > source.X)
+                    return Direction.East;
+                if(target.X < source.X)
+                    return Direction.West;
+            }
+            throw new Exception("Can't get Direction to points!");
         }
     }
 }

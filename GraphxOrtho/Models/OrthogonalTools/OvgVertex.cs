@@ -3,6 +3,7 @@ using System.Windows.Shapes;
 using GraphX.Common.Interfaces;
 using GraphX.Measure;
 using System.Linq;
+using GraphxOrtho.Models.AlgorithmTools;
 
 namespace GraphxOrtho.Models.OrthogonalTools
 {
@@ -105,11 +106,22 @@ namespace GraphxOrtho.Models.OrthogonalTools
                     Y2 = connectionPoint.Y
                 });
         }
-        
+        public Direction GetDirectionOfPoint(Point connectionPoint)
+        {
+            double topSide = Position.Y;
+            double bottomSide = Position.Y + SizeOfVertex.Height;
+            double leftSide = Position.X;
+            double rightSide = Position.X + SizeOfVertex.Width;
+            if (connectionPoint.Y == topSide)
+                return Direction.North;
+            if (connectionPoint.X == rightSide)
+                return Direction.East;
+            if (connectionPoint.Y == bottomSide)
+                return Direction.South;
+            if (connectionPoint.X == leftSide)
+                return Direction.West;
+            throw new System.Exception("Can't define direction");
+        }
     }
-    internal struct PolarPoint
-    {
-        public double Radius;
-        public double Angle;
-    }
+    
 }

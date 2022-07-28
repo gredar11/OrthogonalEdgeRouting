@@ -1,18 +1,17 @@
 ﻿using GraphX;
 using GraphX.Common.Enums;
-using GraphX.Common.Interfaces;
 using GraphX.Controls;
 using GraphX.Logic.Algorithms.LayoutAlgorithms;
+using GraphX.Logic.Algorithms.EdgeRouting;
 using GraphxOrtho.Models;
-using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using System.Collections.Generic;
 using GraphxOrtho.Models.AlgorithmTools;
-using System.Windows.Controls;
-using QuickGraph;
-using GraphX.Common.Models;
+using System.Collections;
+using GraphxOrtho.Models.OrthogonalTools;
 
 namespace GraphxOrtho
 {
@@ -84,7 +83,7 @@ namespace GraphxOrtho
             //Now we need to create edges and vertices to fill data graph
             //This edges and vertices will represent graph structure and connections
             //Lets make some vertices
-            for (int i = 1; i <= 6; i++)
+            for (int i = 1; i <= 2; i++)
             {
                 //Create new vertex with specified Text. Also we will assign custom unique ID.
                 //This ID is needed for several features such as serialization and edge routing algorithms.
@@ -103,20 +102,20 @@ namespace GraphxOrtho
             dataGraph.AddEdge(dataEdge);
             //dataEdge = new DataEdge(vlist[1], vlist[0]) {  };
             //dataGraph.AddEdge(dataEdge);
-            dataEdge = new DataEdge(vlist[2], vlist[0]) { };
-            dataGraph.AddEdge(dataEdge);
-            dataEdge = new DataEdge(vlist[0], vlist[3]) { };
-            dataGraph.AddEdge(dataEdge);
-            //dataEdge = new DataEdge(vlist[2], vlist[3]) { };
+            //dataEdge = new DataEdge(vlist[2], vlist[0]) { };
             //dataGraph.AddEdge(dataEdge);
-            dataEdge = new DataEdge(vlist[4], vlist[0]) { };
-            dataGraph.AddEdge(dataEdge);
-            dataEdge = new DataEdge(vlist[5], vlist[4]) { };
-            dataGraph.AddEdge(dataEdge);
-            dataEdge = new DataEdge(vlist[3], vlist[5]) { };
-            dataGraph.AddEdge(dataEdge);
-            dataEdge = new DataEdge(vlist[1], vlist[3]) { };
-            dataGraph.AddEdge(dataEdge);
+            //dataEdge = new DataEdge(vlist[0], vlist[3]) { };
+            //dataGraph.AddEdge(dataEdge);
+            ////dataEdge = new DataEdge(vlist[2], vlist[3]) { };
+            ////dataGraph.AddEdge(dataEdge);
+            //dataEdge = new DataEdge(vlist[4], vlist[0]) { };
+            //dataGraph.AddEdge(dataEdge);
+            //dataEdge = new DataEdge(vlist[5], vlist[4]) { };
+            //dataGraph.AddEdge(dataEdge);
+            //dataEdge = new DataEdge(vlist[3], vlist[5]) { };
+            //dataGraph.AddEdge(dataEdge);
+            //dataEdge = new DataEdge(vlist[1], vlist[3]) { };
+            //dataGraph.AddEdge(dataEdge);
             return dataGraph;
         }
 
@@ -230,17 +229,35 @@ namespace GraphxOrtho
                 var stroke = Brushes.Green;
                 var strokeThickness = 1.0;
 
-                var lineToAdd = new Line()
+                if(edge.Source.Point.X == edge.Target.Point.X)
                 {
-                    X1 = edge.Source.Point.X,
-                    Y1 = edge.Source.Point.Y,
-                    X2 = edge.Target.Point.X,
-                    Y2 = edge.Target.Point.Y,
-                    Stroke = stroke,
-                    StrokeThickness = strokeThickness
-                };
+                    var lineToAdd = new Line()
+                    {
+                        X1 = edge.Source.Point.X,
+                        Y1 = edge.Source.Point.Y + (edge.Source.Point.Y > edge.Target.Point.Y ? -1 : 1),
+                        X2 = edge.Target.Point.X,
+                        Y2 = edge.Target.Point.Y + (edge.Source.Point.Y > edge.Target.Point.Y ? 1 : -1),
+                        Stroke = stroke,
+                        StrokeThickness = strokeThickness
+                    };
 
-                Area.AddCustomChildControl(lineToAdd);
+                    Area.AddCustomChildControl(lineToAdd);
+                }
+                if(edge.Source.Point.Y == edge.Target.Point.Y)
+                {
+                    var lineToAdd = new Line()
+                    {
+                        X1 = edge.Source.Point.X + (edge.Source.Point.X > edge.Target.Point.X ? -1 : 1),
+                        Y1 = edge.Source.Point.Y,
+                        X2 = edge.Target.Point.X - (edge.Source.Point.X > edge.Target.Point.X ? -1 : 1),
+                        Y2 = edge.Target.Point.Y,
+                        Stroke = stroke,
+                        StrokeThickness = strokeThickness
+                    };
+
+                    Area.AddCustomChildControl(lineToAdd);
+                }
+                
                 var sourceCircle = new Ellipse()
                 {
                     Width = 4,
@@ -252,108 +269,32 @@ namespace GraphxOrtho
                 GraphAreaBase.SetX(sourceCircle, edge.Source.Point.X - 2);
                 GraphAreaBase.SetY(sourceCircle, edge.Source.Point.Y - 2);
             }
+            var algorithmBaseClass = (Area.LogicCore.ExternalEdgeRoutingAlgorithm as OrthogonalEdgeRoutingAlgorithm<DataVertex, DataEdge>);
+            var edgeToDraw = algorithmBaseClass.Graph.Edges.First();
+            var startVertex = algorithmBaseClass.OvgVertices[edgeToDraw.Source];
+            var endVertex = algorithmBaseClass.OvgVertices[edgeToDraw.Target];
+            var startPoint = startVertex.ConnectionPoints[edgeToDraw];
+            var endPoint = endVertex.ConnectionPoints[edgeToDraw];
+            var orthogonalVertices = algorithmBaseClass.OrthogonalVisibilityGraph.AdjacencyGraph.Vertices;
+
+            var strartPointInAdjacecnyGraph = (from v in orthogonalVertices where v.Point == startPoint select v).FirstOrDefault();
+            strartPointInAdjacecnyGraph.Direction = startVertex.GetDirectionOfPoint(strartPointInAdjacecnyGraph.Point);
+            var endPointInAdjacecnyGraph = (from v in orthogonalVertices where v.Point == endPoint select v).FirstOrDefault();
+            endPointInAdjacecnyGraph.Direction = endVertex.GetDirectionOfPoint(endPointInAdjacecnyGraph.Point);
+
+            PriorityPoint start = new PriorityPoint(strartPointInAdjacecnyGraph, null);
+            PriorityPoint end = new PriorityPoint(endPointInAdjacecnyGraph, null);
+            PriorityAlgorithm<DataVertex,DataEdge> algorithm = new PriorityAlgorithm<DataVertex, DataEdge>(start, end, algorithmBaseClass.OrthogonalVisibilityGraph);
+            //var path = algorithm.CalculatePath();
             return;
-            //var vertexOfFirstEdge = firstEdge.Value.Source;
-
-            List<OrthogonalVertex> orthogonalVertices = new List<OrthogonalVertex>();
-
-            #region Ищем крайнюю девую и правую точку.
-
-            var zoomctrl = Area.Parent as ZoomControl;
-            Point leftTopEndOfGraph = new Point(0, 0);
-            Point rightBottomEndOfGraph = new Point(0, 0);
-            foreach (var vertex in Area.VertexList)
+        }
+        public class PointWdComparer : IComparer
+        {
+            public int Compare(object x, object y)
             {
-                // словарь узлов
-                // локальный объект - DataVertex
-                var dataKey = vertex.Key;
-                // визуальный объект - VertexControl
-                var dataControl = vertex.Value;
-                Point positionOfNode = dataControl.GetPosition();
-                if (positionOfNode.X + dataControl.ActualWidth > rightBottomEndOfGraph.X)
-                    rightBottomEndOfGraph.X = positionOfNode.X + dataControl.ActualWidth;
-                if (positionOfNode.X < leftTopEndOfGraph.X)
-                    leftTopEndOfGraph.X = positionOfNode.X;
-                if (positionOfNode.Y + dataControl.ActualHeight > rightBottomEndOfGraph.Y)
-                    rightBottomEndOfGraph.Y = positionOfNode.Y + dataControl.ActualHeight;
-                if (positionOfNode.Y < leftTopEndOfGraph.Y)
-                    leftTopEndOfGraph.Y = positionOfNode.Y;
-                // creating vertex with bounds and vertical + horizontal segments
-            } 
-            #endregion
-            
-            foreach (var vertex in Area.VertexList)
-            {
-                // визуальный объект - VertexControl
-                var dataControl = vertex.Value;
-                var rootArea = dataControl.RootArea;
-                var relatedEdges = rootArea.GetRelatedVertexControls(dataControl);
-                // creating vertex with bounds and vertical + horizontal segments
-                orthogonalVertices.Add(new OrthogonalVertex(dataControl, leftTopEndOfGraph, rightBottomEndOfGraph, 10.0));
-                //AddBoundSegmentsToAreaByVertexControl(dataControl, zoomctrl);
-                var sourceCircle = new Ellipse()
-                {
-                    Width = 4,
-                    Height = 4,
-                    Stroke = Brushes.Red,
-                    StrokeThickness = 1
-                };
-                Area.AddCustomChildControl(sourceCircle);
-                GraphAreaBase.SetX(sourceCircle, dataControl.GetPosition().X - 2);
-                GraphAreaBase.SetY(sourceCircle, dataControl.GetPosition().Y - 2);
-            }
-            
-            
-
-            OrthogonalVisibilityGraph orthogonalVisibilityGraph = new OrthogonalVisibilityGraph(orthogonalVertices);
-
-            var adjGraphEdges = orthogonalVisibilityGraph.AdjacencyGraph.Edges.ToList();
-            adjGraphEdges = adjGraphEdges.OrderBy(x => x.Source.Point.X).ToList();
-
-            for (int i = 0; i < adjGraphEdges.Count; i++)
-            {
-                var stroke = Brushes.Green;
-                var strokeThickness = 1.0;
-
-                var lineToAdd = new Line()
-                {
-                    X1 = adjGraphEdges[i].Source.Point.X,
-                    Y1 = adjGraphEdges[i].Source.Point.Y,
-                    X2 = adjGraphEdges[i].Target.Point.X,
-                    Y2 = adjGraphEdges[i].Target.Point.Y,
-                    Stroke = stroke,
-                    StrokeThickness = strokeThickness
-                };
-                //if (IsLineHorizontal(lineToAdd))
-                //{
-                //    lineToAdd.X1 = lineToAdd.X1;
-                //    lineToAdd.X2 = lineToAdd.X2;
-                //}
-                //else
-                //{
-                //    lineToAdd.Y1 = lineToAdd.Y1;
-                //    lineToAdd.Y2 = lineToAdd.Y2;
-                //}
-                Area.AddCustomChildControl(lineToAdd);
-                var sourceCircle = new Ellipse()
-                {
-                    Width = 4,
-                    Height = 4,
-                    Stroke = Brushes.Black,
-                    StrokeThickness = 1
-                };
-                Area.AddCustomChildControl(sourceCircle);
-                GraphAreaBase.SetX(sourceCircle, adjGraphEdges[i].Source.Point.X - 2);
-                GraphAreaBase.SetY(sourceCircle, adjGraphEdges[i].Source.Point.Y - 2);
-            }
-            foreach (var vertex in orthogonalVisibilityGraph.AdjacencyGraph.Vertices)
-            {
-                IEnumerable<Edge<PointWithDirection>> edges;
-                orthogonalVisibilityGraph.AdjacencyGraph.TryGetOutEdges(vertex, out edges);
-                System.Console.WriteLine();
+                throw new System.NotImplementedException();
             }
         }
-        
         private static bool IsLineHorizontal(Line line)
         {
             return line.Y1 == line.Y2;

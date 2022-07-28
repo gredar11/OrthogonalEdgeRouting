@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using GraphxOrtho.Models.AlgorithmTools;
+using GraphX.Measure;
 
 namespace Test
 {
@@ -13,12 +14,12 @@ namespace Test
             // arrange
             PointWithDirection source = new PointWithDirection() 
             { 
-                Point = new System.Windows.Point(1.0,4.0) , 
+                Point = new Point(1.0,4.0) , 
                 Direction = Direction.West
             };
             PointWithDirection target = new PointWithDirection()
             {
-                Point = new System.Windows.Point(4.0, 1.0),
+                Point = new Point(4.0, 1.0),
                 Direction = Direction.West
             };
             int boundsExpected = 4;
@@ -34,12 +35,12 @@ namespace Test
             // arrange
             PointWithDirection source = new PointWithDirection()
             {
-                Point = new System.Windows.Point(1.0, 4.0),
+                Point = new Point(1.0, 4.0),
                 Direction = Direction.East
             };
             PointWithDirection target = new PointWithDirection()
             {
-                Point = new System.Windows.Point(4.0, 1.0),
+                Point = new Point(4.0, 1.0),
                 Direction = Direction.East
             };
             int boundsExpected = 2;
@@ -55,12 +56,12 @@ namespace Test
             // arrange
             PointWithDirection source = new PointWithDirection()
             {
-                Point = new System.Windows.Point(1.0, 4.0),
+                Point = new Point(1.0, 4.0),
                 Direction = Direction.East
             };
             PointWithDirection target = new PointWithDirection()
             {
-                Point = new System.Windows.Point(4.0, 1.0),
+                Point = new Point(4.0, 1.0),
                 Direction = Direction.South
             };
             int boundsExpected = 1;
@@ -76,12 +77,12 @@ namespace Test
             // arrange
             PointWithDirection source = new PointWithDirection()
             {
-                Point = new System.Windows.Point(1.0, 4.0),
+                Point = new Point(1.0, 4.0),
                 Direction = Direction.East
             };
             PointWithDirection target = new PointWithDirection()
             {
-                Point = new System.Windows.Point(1.0, 1.0),
+                Point = new Point(1.0, 1.0),
                 Direction = Direction.East
             };
             int boundsExpected = 4;
@@ -97,12 +98,12 @@ namespace Test
             // arrange
             PointWithDirection source = new PointWithDirection()
             {
-                Point = new System.Windows.Point(1.0, 4.0),
+                Point = new Point(1.0, 4.0),
                 Direction = Direction.East
             };
             PointWithDirection target = new PointWithDirection()
             {
-                Point = new System.Windows.Point(1.0, 1.0),
+                Point = new Point(1.0, 1.0),
                 Direction = Direction.West
             };
             int boundsExpected = 2;
@@ -118,12 +119,12 @@ namespace Test
             // arrange
             PointWithDirection source = new PointWithDirection()
             {
-                Point = new System.Windows.Point(1.0, 4.0),
+                Point = new Point(1.0, 4.0),
                 Direction = Direction.West
             };
             PointWithDirection target = new PointWithDirection()
             {
-                Point = new System.Windows.Point(4.0, 1.0),
+                Point = new Point(4.0, 1.0),
                 Direction = Direction.South
             };
             int boundsExpected = 3;
@@ -139,18 +140,18 @@ namespace Test
             // arrange
             PointWithDirection source = new PointWithDirection()
             {
-                Point = new System.Windows.Point(0.0, 0.0),
+                Point = new Point(0.0, 0.0),
                 Direction = Direction.North
             };
             double[,] points = new double[2, 8] { { -1, 0, 1, 1, 1, 0, -1, -1 }, { 1, 1, 1, 0, -1, -1, -1, 0 } };
             PointWithDirection[] targets = new PointWithDirection[8];
             for (int i = 0; i < targets.Length; i++)
             {
-                targets[i] = new PointWithDirection() { Point = new System.Windows.Point(points[0, i], points[1, i]), Direction = Direction.North };
+                targets[i] = new PointWithDirection() { Point = new Point(points[0, i], points[1, i]), Direction = Direction.North };
             }
             PointWithDirection target = new PointWithDirection()
             {
-                Point = new System.Windows.Point(4.0, 1.0),
+                Point = new Point(4.0, 1.0),
                 Direction = Direction.South
             };
             Direction[] directions = new Direction[] {Direction.North, Direction.East, Direction.South, Direction.West};

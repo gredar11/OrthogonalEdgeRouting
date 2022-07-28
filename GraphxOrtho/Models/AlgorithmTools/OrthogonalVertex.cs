@@ -1,15 +1,10 @@
-﻿using GraphX.Controls;
-using SystemWindows = System.Windows ;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Shapes;
-using System;
-using System.Windows.Media;
-using System.Windows;
+﻿using GraphX;
 using GraphX.Common.Interfaces;
-using GraphX;
+using GraphX.Controls;
+using GraphX.Measure;
+using System.Collections.Generic;
+using System.Windows.Media;
+using System.Windows.Shapes;
 
 namespace GraphxOrtho.Models.AlgorithmTools
 {
@@ -24,7 +19,8 @@ namespace GraphxOrtho.Models.AlgorithmTools
         public OrthogonalVertex(VertexControl control, Point leftTopPoint, Point rightBottomPoint, double marginBetweenEdgeAndNode)
         {
             VertexControl = control;
-            Position = VertexControl.GetPosition();
+            var pos = VertexControl.GetPosition();
+            Position = new Point(pos.X, pos.Y);
             VerticalSegments = new List<Line>();
             HorizontalSegments = new List<Line>();
             ConnectionPoints = new List<Point>();
@@ -77,13 +73,15 @@ namespace GraphxOrtho.Models.AlgorithmTools
                 var edgeData = edge as EdgeControl;
                 if (VertexControl.Equals(edgeData.Source))
                 {
-                    Point conPoint = GetSourcePointOfEdge(edgeData);
+                    var sourcepoint = GetSourcePointOfEdge(edgeData);
+                    Point conPoint = new Point(sourcepoint.X, sourcepoint.Y);
                     AddSegmentByPoint(conPoint, leftTop, rightBottom);
                     ConnectionPoints.Add(conPoint);
                 }
                 if (VertexControl.Equals(edgeData.Target))
                 {
-                    Point conPoint = GetTargetPointOfEdge(edgeData);
+                    var targetpoint = GetTargetPointOfEdge(edgeData);
+                    Point conPoint = new Point(targetpoint.X, targetpoint.Y);
                     AddSegmentByPoint(conPoint, leftTop, rightBottom);
                     ConnectionPoints.Add(conPoint);
                 }

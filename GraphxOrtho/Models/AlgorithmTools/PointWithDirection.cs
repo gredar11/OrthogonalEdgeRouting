@@ -1,6 +1,6 @@
-﻿using Priority_Queue;
+﻿using GraphX.Measure;
+using Priority_Queue;
 using System;
-using System.Windows;
 using System.Collections.Generic;
 namespace GraphxOrtho.Models.AlgorithmTools
 {
@@ -128,6 +128,10 @@ namespace GraphxOrtho.Models.AlgorithmTools
             if (obj is PointWithDirection) return ((PointWithDirection)obj).Point.X == this.Point.X && ((PointWithDirection)obj).Point.Y == this.Point.Y;
             return false;
         }
+        public override int GetHashCode()
+        {
+            return Point.GetHashCode();
+        }
     }
     public enum TurnDirection
     {
@@ -142,21 +146,5 @@ namespace GraphxOrtho.Models.AlgorithmTools
         Stop = 0
     }
 
-    //public static void Do()
-    //{
-    //    SimplePriorityQueue<string> priorityQueue = new SimplePriorityQueue<string>();
-    //    priorityQueue.Enqueue("4 - Joseph", 4);
-    //    priorityQueue.Enqueue("2 - Tyler", 0); //Note: Priority = 0 right now!
-    //    priorityQueue.Enqueue("1 - Jason", 1);
-    //    priorityQueue.Enqueue("4 - Ryan", 4);
-    //    priorityQueue.Enqueue("3 - Valerie", 3);
-
-    //    priorityQueue.UpdatePriority("2 - Tyler", 2);
-
-    //    while (priorityQueue.Count != 0)
-    //    {
-    //        string nextUser = priorityQueue.Dequeue();
-    //        Console.WriteLine(nextUser);
-    //    }
-    //}
+    
 }
