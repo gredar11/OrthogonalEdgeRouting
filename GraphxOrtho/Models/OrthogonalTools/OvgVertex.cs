@@ -106,20 +106,20 @@ namespace GraphxOrtho.Models.OrthogonalTools
                     Y2 = connectionPoint.Y
                 });
         }
-        public Direction GetDirectionOfPoint(Point connectionPoint)
+        public Direction GetDirectionOfPoint(Point connectionPoint, bool source)
         {
             double topSide = Position.Y;
             double bottomSide = Position.Y + SizeOfVertex.Height;
             double leftSide = Position.X;
             double rightSide = Position.X + SizeOfVertex.Width;
             if (connectionPoint.Y == topSide)
-                return Direction.North;
+                return source ? Direction.North : Direction.South;
             if (connectionPoint.X == rightSide)
-                return Direction.East;
+                return source ? Direction.East : Direction.West;
             if (connectionPoint.Y == bottomSide)
-                return Direction.South;
+                return source ? Direction.South : Direction.North;
             if (connectionPoint.X == leftSide)
-                return Direction.West;
+                return source ? Direction.West : Direction.East;
             throw new System.Exception("Can't define direction");
         }
     }

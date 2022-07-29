@@ -241,7 +241,8 @@ namespace GraphxOrtho.Models.OrthogonalTools
             foreach (Edge<PointWithDirection> edge in allAjacenceEdges)
             {
                 var otherSideVertex = parentPoint.DireciontPoint.Point == edge.Source.Point ? edge.Target : edge.Source;
-                if (parentPoint.ParentPoint == null || parentPoint.ParentPoint.DireciontPoint != otherSideVertex)
+                if ((parentPoint.ParentPoint == null || parentPoint.ParentPoint.DireciontPoint.Point != otherSideVertex.Point) 
+                    && parentPoint.DireciontPoint.Point != otherSideVertex.Point)
                     neighbours.Add(otherSideVertex);
             }
             List<PriorityPoint> neigrboursToReturn = new List<PriorityPoint>();
@@ -250,15 +251,15 @@ namespace GraphxOrtho.Models.OrthogonalTools
                 // по каждому узлу создаем узел приоритета.
                 PriorityPoint priorityPoint = new PriorityPoint(neighbour, parentPoint);
                 // для точки с направлением устанавливаем направление.
-                priorityPoint.DireciontPoint.Direction = GetDestinationPointDirection(parentPoint.DireciontPoint.Point, priorityPoint.DireciontPoint.Point);
+                priorityPoint.DireciontPoint.Direction = GetDestinationPointDirection(parentPoint.DireciontPoint.Point, priorityPoint.DireciontPoint.Point, parentPoint.DireciontPoint.Direction);
                 neigrboursToReturn.Add(priorityPoint);
             }
             return neigrboursToReturn;
         }
-        public Direction GetDestinationPointDirection(Point source, Point target)
+        public Direction GetDestinationPointDirection(Point source, Point target, Direction parentdir)
         {
             if (source == target)
-                throw new Exception("Can't get Direction to equal points!");
+                return parentdir;
             if(source.X == target.X)
             {
                 if(target.Y > source.Y)

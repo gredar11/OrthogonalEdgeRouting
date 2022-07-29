@@ -50,7 +50,7 @@ namespace GraphxOrtho
             //Optionaly we set second param to True (True by default) so this method will automaticaly checks and assigns missing unique data ids
             //for edges and vertices in _dataGraph.
             //Note! Area.Graph property will be replaced by supplied _dataGraph object (if any).
-            Area.GenerateGraph(true, true);
+            Area.GenerateGraph(false, true);
 
             /* 
              * After graph generation is finished you can apply some additional settings for newly created visual vertex and edge controls
@@ -61,7 +61,7 @@ namespace GraphxOrtho
             //This method sets the dash style for edges. It is applied to all edges in Area.EdgesList. You can also set dash property for
             //each edge individually using EdgeControl.DashStyle property.
             //For ex.: Area.EdgesList[0].DashStyle = GraphX.EdgeDashStyle.Dash;
-            Area.SetEdgesDashStyle(EdgeDashStyle.Solid);
+            Area.SetEdgesDashStyle(EdgeDashStyle.Dash);
             Area.SetVerticesDrag(true);
             Area.SetEdgesDrag(true);
             
@@ -83,7 +83,7 @@ namespace GraphxOrtho
             //Now we need to create edges and vertices to fill data graph
             //This edges and vertices will represent graph structure and connections
             //Lets make some vertices
-            for (int i = 1; i <= 2; i++)
+            for (int i = 1; i <= 6; i++)
             {
                 //Create new vertex with specified Text. Also we will assign custom unique ID.
                 //This ID is needed for several features such as serialization and edge routing algorithms.
@@ -100,7 +100,21 @@ namespace GraphxOrtho
             //Then create two edges optionaly defining Text property to show who are connected
             var dataEdge = new DataEdge(vlist[0], vlist[1]) { };
             dataGraph.AddEdge(dataEdge);
-            
+            dataEdge = new DataEdge(vlist[1], vlist[0]) { };
+            dataGraph.AddEdge(dataEdge);
+            dataEdge = new DataEdge(vlist[1], vlist[2]) { };
+            dataGraph.AddEdge(dataEdge);
+            dataEdge = new DataEdge(vlist[1], vlist[3]) { };
+            dataGraph.AddEdge(dataEdge);
+            dataEdge = new DataEdge(vlist[2], vlist[3]) { };
+            dataGraph.AddEdge(dataEdge);
+            dataEdge = new DataEdge(vlist[4], vlist[5]) { };
+            dataGraph.AddEdge(dataEdge);
+            dataEdge = new DataEdge(vlist[3], vlist[4]) { };
+            dataGraph.AddEdge(dataEdge);
+            dataEdge = new DataEdge(vlist[2], vlist[4]) { };
+            dataGraph.AddEdge(dataEdge);
+
             var v1 = dataGraph.Vertices.First();
             var hasInEdges = dataGraph.TryGetInEdges(v1, out IEnumerable<DataEdge> inedges);
             var hasOutEdges = dataGraph.TryGetOutEdges(v1, out IEnumerable<DataEdge> outedges);
@@ -189,7 +203,7 @@ namespace GraphxOrtho
                 Stroke = Brushes.LightGray,
                 StrokeThickness = 0.3
             };
-            Area.AddCustomChildControl(xAxis); 
+            Area.AddCustomChildControl(xAxis);
             #endregion
 
             //var sourcePointOfEdge = GetSourcePointOfEdge(firstEdge);
@@ -245,7 +259,7 @@ namespace GraphxOrtho
 
             //        Area.AddCustomChildControl(lineToAdd);
             //    }
-                
+
             //    var sourceCircle = new Ellipse()
             //    {
             //        Width = 4,
@@ -258,7 +272,16 @@ namespace GraphxOrtho
             //    GraphAreaBase.SetY(sourceCircle, edge.Source.Point.Y - 2);
             //}
             var algorithmBaseClass = (Area.LogicCore.ExternalEdgeRoutingAlgorithm as OrthogonalEdgeRoutingAlgorithm<DataVertex, DataEdge>);
-            var edgeToDraw = algorithmBaseClass.Graph.Edges.First();
+            foreach (var edge in algorithmBaseClass.Graph.Edges)
+            {
+                DrawOrthogonalEdge(algorithmBaseClass, edge);
+            }
+            return;
+        }
+
+        private void DrawOrthogonalEdge(OrthogonalEdgeRoutingAlgorithm<DataVertex, DataEdge> algorithmBaseClass, DataEdge edge)
+        {
+            var edgeToDraw = edge;
             var startVertex = algorithmBaseClass.OvgVertices[edgeToDraw.Source];
             var endVertex = algorithmBaseClass.OvgVertices[edgeToDraw.Target];
             var startPoint = startVertex.ConnectionPoints[edgeToDraw];
@@ -266,13 +289,14 @@ namespace GraphxOrtho
             var orthogonalVertices = algorithmBaseClass.OrthogonalVisibilityGraph.BiderectionalGraph.Vertices;
 
             var strartPointInAdjacecnyGraph = (from v in orthogonalVertices where v.Point == startPoint select v).FirstOrDefault();
-            strartPointInAdjacecnyGraph.Direction = startVertex.GetDirectionOfPoint(strartPointInAdjacecnyGraph.Point);
+            strartPointInAdjacecnyGraph.Direction = startVertex.GetDirectionOfPoint(strartPointInAdjacecnyGraph.Point, true);
             var endPointInAdjacecnyGraph = (from v in orthogonalVertices where v.Point == endPoint select v).FirstOrDefault();
-            endPointInAdjacecnyGraph.Direction = endVertex.GetDirectionOfPoint(endPointInAdjacecnyGraph.Point);
+            endPointInAdjacecnyGraph.Direction = endVertex.GetDirectionOfPoint(endPointInAdjacecnyGraph.Point, false);
 
             PriorityPoint start = new PriorityPoint(strartPointInAdjacecnyGraph, null);
             PriorityPoint end = new PriorityPoint(endPointInAdjacecnyGraph, null);
-            PriorityAlgorithm<DataVertex,DataEdge> algorithm = new PriorityAlgorithm<DataVertex, DataEdge>(start, end, algorithmBaseClass.OrthogonalVisibilityGraph);
+            PriorityAlgorithm<DataVertex, DataEdge> algorithm = new PriorityAlgorithm<DataVertex, DataEdge>(start, end, algorithmBaseClass.OrthogonalVisibilityGraph);
+            PriorityPoint.DistanceFactor = 1.0;
             var path = algorithm.CalculatePath();
             for (int i = 1; i < path.Count; i++)
             {
@@ -288,8 +312,8 @@ namespace GraphxOrtho
 
                 Area.AddCustomChildControl(lineToAdd);
             }
-            return;
         }
+
         public class PointWdComparer : IComparer
         {
             public int Compare(object x, object y)

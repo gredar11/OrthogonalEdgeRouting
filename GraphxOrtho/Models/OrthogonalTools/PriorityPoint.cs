@@ -11,6 +11,18 @@ namespace GraphxOrtho.Models.OrthogonalTools
 {
     public class PriorityPoint
     {
+        // Value to divide distances to. For punish many bends
+        private static double _distanceFactor = 1.0;
+        public static double DistanceFactor { 
+            get { return _distanceFactor; } 
+            set 
+            { 
+                if(value <= 0.0)
+                    _distanceFactor = 1.0;
+                else
+                    _distanceFactor = value;
+            } 
+        }
         public PointWithDirection DireciontPoint { get; set; }
         public PriorityPoint ParentPoint { get; set; }
         public double LengthOfPart { get; set; } = 0;
@@ -28,7 +40,7 @@ namespace GraphxOrtho.Models.OrthogonalTools
             double sD = PointWithDirection.GetSdByTwoPoints(DireciontPoint, destination.DireciontPoint);
             double mDistancevv = ManhattanDistance(ParentPoint.DireciontPoint.Point, DireciontPoint.Point);
             double mDistancevd = ManhattanDistance(DireciontPoint.Point, destination.DireciontPoint.Point);
-            Cost = LengthOfPart + mDistancevd + mDistancevv + sV + sD;
+            Cost = (LengthOfPart + mDistancevd + mDistancevv) / DistanceFactor + sV + sD + (ParentPoint.DireciontPoint.Direction == DireciontPoint.Direction ? 0 : 1) ;
         }
         public double ManhattanDistance(Point p1, Point p2)
         {
