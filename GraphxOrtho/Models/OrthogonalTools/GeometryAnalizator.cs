@@ -16,11 +16,11 @@ namespace GraphxOrtho.Models.OrthogonalTools
         
         private static bool HorizontalLineIsOnVertexLevel(OvgVertex<TVertex> vertex, Line line)
         {
-            return line.Y1 >= vertex.Position.Y && line.Y1 <= vertex.Position.Y + vertex.SizeOfVertex.Height;
+            return line.Y1 >= vertex.Position.Y - vertex.MarginToEdge && line.Y1 <= vertex.Position.Y + vertex.SizeOfVertex.Height + vertex.MarginToEdge;
         }
         private static bool VerticalLineIsOnVertexLevel(OvgVertex<TVertex> vertex, Line line)
         {
-            return line.X1 >= vertex.Position.X && line.X1 <= vertex.Position.X + vertex.SizeOfVertex.Width;
+            return line.X1 >= vertex.Position.X - vertex.MarginToEdge && line.X1 <= vertex.Position.X + vertex.SizeOfVertex.Width + vertex.MarginToEdge;
         }
         public double GetLinesYatX(double x, Line line)
         {
@@ -30,10 +30,10 @@ namespace GraphxOrtho.Models.OrthogonalTools
         }
         public static bool LineIntersectsOrthogonalVertex(OvgVertex<TVertex> orthogonalVertex, Line line)
         {
-            double top = orthogonalVertex.Position.Y + orthogonalVertex.SizeOfVertex.Height;
-            double bottom = orthogonalVertex.Position.Y;
-            double left = orthogonalVertex.Position.X;
-            double right = orthogonalVertex.Position.X + orthogonalVertex.SizeOfVertex.Width;
+            double top = orthogonalVertex.Position.Y + orthogonalVertex.SizeOfVertex.Height + orthogonalVertex.MarginToEdge;
+            double bottom = orthogonalVertex.Position.Y - orthogonalVertex.MarginToEdge;
+            double left = orthogonalVertex.Position.X - orthogonalVertex.MarginToEdge;
+            double right = orthogonalVertex.Position.X + orthogonalVertex.SizeOfVertex.Width + orthogonalVertex.MarginToEdge;
             if (IsLineHorizontal(line) && HorizontalLineIsOnVertexLevel(orthogonalVertex,line))
             {
                 double[] lineDiapazon = {line.X1, line.X2};

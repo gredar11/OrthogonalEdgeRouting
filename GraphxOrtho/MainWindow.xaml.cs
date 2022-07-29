@@ -226,51 +226,51 @@ namespace GraphxOrtho
                 }
             }
             var orthogonalGraph = (Area.LogicCore.ExternalEdgeRoutingAlgorithm as OrthogonalEdgeRoutingAlgorithm<DataVertex, DataEdge>).OrthogonalVisibilityGraph;
-            //foreach (var edge in orthogonalGraph.BiderectionalGraph.Edges)
-            //{
-            //    var stroke = Brushes.Green;
-            //    var strokeThickness = 1.0;
+            foreach (var edge in orthogonalGraph.BiderectionalGraph.Edges)
+            {
+                var stroke = Brushes.Green;
+                var strokeThickness = 0.5;
 
-            //    if(edge.Source.Point.X == edge.Target.Point.X)
-            //    {
-            //        var lineToAdd = new Line()
-            //        {
-            //            X1 = edge.Source.Point.X,
-            //            Y1 = edge.Source.Point.Y + (edge.Source.Point.Y > edge.Target.Point.Y ? -1 : 1),
-            //            X2 = edge.Target.Point.X,
-            //            Y2 = edge.Target.Point.Y + (edge.Source.Point.Y > edge.Target.Point.Y ? 1 : -1),
-            //            Stroke = stroke,
-            //            StrokeThickness = strokeThickness
-            //        };
+                if (edge.Source.Point.X == edge.Target.Point.X)
+                {
+                    var lineToAdd = new Line()
+                    {
+                        X1 = edge.Source.Point.X,
+                        Y1 = edge.Source.Point.Y + (edge.Source.Point.Y > edge.Target.Point.Y ? -1 : 1),
+                        X2 = edge.Target.Point.X,
+                        Y2 = edge.Target.Point.Y + (edge.Source.Point.Y > edge.Target.Point.Y ? 1 : -1),
+                        Stroke = stroke,
+                        StrokeThickness = strokeThickness
+                    };
 
-            //        Area.AddCustomChildControl(lineToAdd);
-            //    }
-            //    if(edge.Source.Point.Y == edge.Target.Point.Y)
-            //    {
-            //        var lineToAdd = new Line()
-            //        {
-            //            X1 = edge.Source.Point.X + (edge.Source.Point.X > edge.Target.Point.X ? -1 : 1),
-            //            Y1 = edge.Source.Point.Y,
-            //            X2 = edge.Target.Point.X - (edge.Source.Point.X > edge.Target.Point.X ? -1 : 1),
-            //            Y2 = edge.Target.Point.Y,
-            //            Stroke = stroke,
-            //            StrokeThickness = strokeThickness
-            //        };
+                    Area.AddCustomChildControl(lineToAdd);
+                }
+                if (edge.Source.Point.Y == edge.Target.Point.Y)
+                {
+                    var lineToAdd = new Line()
+                    {
+                        X1 = edge.Source.Point.X + (edge.Source.Point.X > edge.Target.Point.X ? -1 : 1),
+                        Y1 = edge.Source.Point.Y,
+                        X2 = edge.Target.Point.X - (edge.Source.Point.X > edge.Target.Point.X ? -1 : 1),
+                        Y2 = edge.Target.Point.Y,
+                        Stroke = stroke,
+                        StrokeThickness = strokeThickness
+                    };
 
-            //        Area.AddCustomChildControl(lineToAdd);
-            //    }
+                    Area.AddCustomChildControl(lineToAdd);
+                }
 
-            //    var sourceCircle = new Ellipse()
-            //    {
-            //        Width = 4,
-            //        Height = 4,
-            //        Stroke = Brushes.Black,
-            //        StrokeThickness = 1
-            //    };
-            //    Area.AddCustomChildControl(sourceCircle);
-            //    GraphAreaBase.SetX(sourceCircle, edge.Source.Point.X - 2);
-            //    GraphAreaBase.SetY(sourceCircle, edge.Source.Point.Y - 2);
-            //}
+                //var sourceCircle = new Ellipse()
+                //{
+                //    Width = 4,
+                //    Height = 4,
+                //    Stroke = Brushes.Black,
+                //    StrokeThickness = 1
+                //};
+                //Area.AddCustomChildControl(sourceCircle);
+                //GraphAreaBase.SetX(sourceCircle, edge.Source.Point.X - 2);
+                //GraphAreaBase.SetY(sourceCircle, edge.Source.Point.Y - 2);
+            }
             var algorithmBaseClass = (Area.LogicCore.ExternalEdgeRoutingAlgorithm as OrthogonalEdgeRoutingAlgorithm<DataVertex, DataEdge>);
             foreach (var edge in algorithmBaseClass.Graph.Edges)
             {
@@ -307,7 +307,7 @@ namespace GraphxOrtho
                     X2 = path[i].DireciontPoint.Point.X,
                     Y2 = path[i].DireciontPoint.Point.Y,
                     Stroke = Brushes.Red,
-                    StrokeThickness = 1.5
+                    StrokeThickness = 0.8
                 };
 
                 Area.AddCustomChildControl(lineToAdd);
