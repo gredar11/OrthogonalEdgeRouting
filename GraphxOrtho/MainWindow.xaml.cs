@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using GraphxOrtho.Models.AlgorithmTools;
 using System.Collections;
 using GraphxOrtho.Models.OrthogonalTools;
+using System.Windows.Controls;
 
 namespace GraphxOrtho
 {
@@ -169,7 +170,6 @@ namespace GraphxOrtho
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            Area.RelayoutGraph(false);
             // Удаляем все линии с графа, чтобы нарисовать новые.
             #region Рисуем оси X и Y и удаляем все предыдущие построения линий и кругов.
             var allLines = Area.GetChildControls<Line>().ToList();
@@ -260,16 +260,20 @@ namespace GraphxOrtho
                     Area.AddCustomChildControl(lineToAdd);
                 }
 
-                //var sourceCircle = new Ellipse()
-                //{
-                //    Width = 4,
-                //    Height = 4,
-                //    Stroke = Brushes.Black,
-                //    StrokeThickness = 1
-                //};
-                //Area.AddCustomChildControl(sourceCircle);
-                //GraphAreaBase.SetX(sourceCircle, edge.Source.Point.X - 2);
-                //GraphAreaBase.SetY(sourceCircle, edge.Source.Point.Y - 2);
+                var textBlock = new TextBlock() { Text = edge.Source.Point.X.ToString("F2") + " ; " + edge.Source.Point.Y.ToString("F2"), 
+                    FontSize = 2};
+
+                var sourceCircle = new Ellipse()
+                {
+                    Width = 4,
+                    Height = 4,
+                    Stroke = Brushes.Black,
+                    StrokeThickness = 1
+                };
+                sourceCircle.ToolTip = edge.Source.Point.X.ToString("F2") + " ; " + edge.Source.Point.Y.ToString("F2");
+                Area.AddCustomChildControl(sourceCircle);
+                GraphAreaBase.SetX(sourceCircle, edge.Source.Point.X - 2);
+                GraphAreaBase.SetY(sourceCircle, edge.Source.Point.Y - 2);
             }
             var algorithmBaseClass = (Area.LogicCore.ExternalEdgeRoutingAlgorithm as OrthogonalEdgeRoutingAlgorithm<DataVertex, DataEdge>);
             foreach (var edge in algorithmBaseClass.Graph.Edges)

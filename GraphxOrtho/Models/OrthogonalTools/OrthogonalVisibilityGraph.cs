@@ -242,7 +242,7 @@ namespace GraphxOrtho.Models.OrthogonalTools
             {
                 var otherSideVertex = parentPoint.DireciontPoint.Point == edge.Source.Point ? edge.Target : edge.Source;
                 if ((parentPoint.ParentPoint == null || parentPoint.ParentPoint.DireciontPoint.Point != otherSideVertex.Point) 
-                    && parentPoint.DireciontPoint.Point != otherSideVertex.Point)
+                    && parentPoint.DireciontPoint.Point != otherSideVertex.Point && !neighbours.Contains(otherSideVertex))
                     neighbours.Add(otherSideVertex);
             }
             List<PriorityPoint> neigrboursToReturn = new List<PriorityPoint>();

@@ -20,11 +20,11 @@ namespace GraphxOrtho.Models.OrthogonalTools
             {
                 if (source.ParentPoint.DireciontPoint.Direction == source.DireciontPoint.Direction)
                 {
-                    return -1; 
+                    return 1; 
                 }
                 else if (target.ParentPoint.DireciontPoint.Direction == target.DireciontPoint.Direction)
                 {
-                    return 1;
+                    return -1;
                 }
             }
 

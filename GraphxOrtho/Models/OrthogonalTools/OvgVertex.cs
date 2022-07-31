@@ -108,8 +108,8 @@ namespace GraphxOrtho.Models.OrthogonalTools
         }
         public Direction GetDirectionOfPoint(Point connectionPoint, bool source)
         {
-            double topSide = Position.Y;
-            double bottomSide = Position.Y + SizeOfVertex.Height;
+            double bottomSide = Position.Y;
+            double topSide = Position.Y + SizeOfVertex.Height;
             double leftSide = Position.X;
             double rightSide = Position.X + SizeOfVertex.Width;
             if (connectionPoint.Y == topSide)

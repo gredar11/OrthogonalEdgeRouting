@@ -42,7 +42,14 @@ namespace GraphxOrtho.Models.OrthogonalTools
                 {
                     neighbour.CalculateCost(destinationPoint);
                     priority.Push(neighbour);
+                    if(neighbour.DireciontPoint.Point == destinationPoint.DireciontPoint.Point)
+                    {
+                        currentPoint = neighbour;
+                        destinationReached = true;
+                    }
                 }
+                if (destinationReached == true)
+                    break;
                 // cheapest vertex
                 currentPoint = priority.Pop();
                 if(currentPoint.DireciontPoint.Point == destinationPoint.DireciontPoint.Point)
