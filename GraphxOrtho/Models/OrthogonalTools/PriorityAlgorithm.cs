@@ -21,7 +21,7 @@ namespace GraphxOrtho.Models.OrthogonalTools
             this.destinationPoint = destinationPoint;
             OrthogonalVisibilityGraph = orthogonalVisibilityGraph;
         }
-        public List<PriorityPoint> CalculatePath()
+        public List<PriorityPoint> CalculatePath(PriorityPoint soursePosition, PriorityPoint targetPosition)
         {
             // если конец совпадает с началом, заканчиваем алгоритм.
             if (startPoint.DireciontPoint.Point == destinationPoint.DireciontPoint.Point)
@@ -55,6 +55,7 @@ namespace GraphxOrtho.Models.OrthogonalTools
                 if(currentPoint.DireciontPoint.Point == destinationPoint.DireciontPoint.Point)
                     destinationReached = true;
             }
+            path.Add(destinationPoint);
             path.Add(currentPoint);
             var toAddInList = currentPoint.ParentPoint;
             while ( toAddInList != null)
@@ -62,6 +63,8 @@ namespace GraphxOrtho.Models.OrthogonalTools
                 path.Add(toAddInList);
                 toAddInList = toAddInList.ParentPoint;
             }
+            path.Add(startPoint);
+            path.Reverse();
             return path;
         }
     }

@@ -96,7 +96,6 @@
     <Compile Include="Models\AlgorithmTools\GeometryAnalizator.cs" />
     <Compile Include="Models\AlgorithmTools\OrthogonalVertex.cs" />
     <Compile Include="Models\AlgorithmTools\OrthogonalVisibilityGraph.cs" />
-    <Compile Include="Models\ConnectionPoints\ConnectPointAnalizator.cs" />
     <Compile Include="Models\DataEdge.cs" />
     <Compile Include="Models\DataVertex.cs" />
     <Compile Include="Models\GraphAreaExample .cs" />

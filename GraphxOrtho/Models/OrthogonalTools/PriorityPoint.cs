@@ -40,7 +40,7 @@ namespace GraphxOrtho.Models.OrthogonalTools
             double sD = PointWithDirection.GetSdByTwoPoints(DireciontPoint, destination.DireciontPoint);
             double mDistancevv = ManhattanDistance(ParentPoint.DireciontPoint.Point, DireciontPoint.Point);
             double mDistancevd = ManhattanDistance(DireciontPoint.Point, destination.DireciontPoint.Point);
-            Cost = (ParentPoint.LengthOfPart + mDistancevd + mDistancevv)  + sV + sD + (ParentPoint.DireciontPoint.Direction == DireciontPoint.Direction ? 0 : 1);
+            Cost = (ParentPoint.LengthOfPart + mDistancevd + mDistancevv)  + sV + sD + (ParentPoint.DireciontPoint.Direction == DireciontPoint.Direction ? 0 : 2);
         }
         public static double ManhattanDistance(Point p1, Point p2)
         {
