@@ -36,42 +36,20 @@ namespace GraphxOrtho
         }
         void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            //lets create graph
-            //Note that you can't create it in class constructor as there will be problems with visuals
+            //lets create graph //Note that you can't create it in class constructor as there will be problems with visuals
             gg_but_randomgraph_Click(null, null);
         }
 
 
         void gg_but_randomgraph_Click(object sender, RoutedEventArgs e)
         {
-            //Lets generate configured graph using pre-created data graph assigned to LogicCore object.
-            //Optionaly we set first method param to True (True by default) so this method will automatically generate edges
-            //  If you want to increase performance in cases where edges don't need to be drawn at first you can set it to False.
-            //  You can also handle edge generation by calling manually Area.GenerateAllEdges() method.
-            //Optionaly we set second param to True (True by default) so this method will automaticaly checks and assigns missing unique data ids
-            //for edges and vertices in _dataGraph.
-            //Note! Area.Graph property will be replaced by supplied _dataGraph object (if any).
+            
             Area.GenerateGraph(false, true);
 
-            /* 
-             * After graph generation is finished you can apply some additional settings for newly created visual vertex and edge controls
-             * (VertexControl and EdgeControl classes).
-             * 
-             */
-
-            //This method sets the dash style for edges. It is applied to all edges in Area.EdgesList. You can also set dash property for
-            //each edge individually using EdgeControl.DashStyle property.
-            //For ex.: Area.EdgesList[0].DashStyle = GraphX.EdgeDashStyle.Dash;
             Area.SetEdgesDashStyle(EdgeDashStyle.Dash);
             Area.SetVerticesDrag(true);
             Area.SetEdgesDrag(true);
-            
-            //This method sets edges arrows visibility. It is also applied to all edges in Area.EdgesList. You can also set property for
-            //each edge individually using property, for ex: Area.EdgesList[0].ShowArrows = true;
             Area.ShowAllEdgesArrows(true);
-
-            //This method sets edges labels visibility. It is also applied to all edges in Area.EdgesList. You can also set property for
-            //each edge individually using property, for ex: Area.EdgesList[0].ShowLabel = true;
             Area.ShowAllEdgesLabels(false);
 
             zoomctrl.ZoomToFill();
@@ -81,28 +59,21 @@ namespace GraphxOrtho
         {
             //Lets make new data graph instance
             var dataGraph = new GraphExample();
-            //Now we need to create edges and vertices to fill data graph
-            //This edges and vertices will represent graph structure and connections
-            //Lets make some vertices
+            
             for (int i = 1; i <= 6; i++)
             {
-                //Create new vertex with specified Text. Also we will assign custom unique ID.
-                //This ID is needed for several features such as serialization and edge routing algorithms.
-                //If you don't need any custom IDs and you are using automatic Area.GenerateGraph() method then you can skip ID assignment
-                //because specified method automaticaly assigns missing data ids (this behavior is controlled by method param).
+                
                 var dataVertex = new DataVertex("V - " + i);
                 //Add vertex to data graph
                 dataGraph.AddVertex(dataVertex);
             }
             
-            //Now lets make some edges that will connect our vertices
-            //get the indexed list of graph vertices we have already added
             var vlist = dataGraph.Vertices.ToList(); // Length = 6
             //Then create two edges optionaly defining Text property to show who are connected
             var dataEdge = new DataEdge(vlist[0], vlist[1]) { };
             dataGraph.AddEdge(dataEdge);
-            dataEdge = new DataEdge(vlist[1], vlist[0]) { };
-            dataGraph.AddEdge(dataEdge);
+            //dataEdge = new DataEdge(vlist[1], vlist[0]) { };
+            //dataGraph.AddEdge(dataEdge);
             dataEdge = new DataEdge(vlist[1], vlist[2]) { };
             dataGraph.AddEdge(dataEdge);
             dataEdge = new DataEdge(vlist[1], vlist[3]) { };
@@ -134,7 +105,6 @@ namespace GraphxOrtho
             logicCore.DefaultLayoutAlgorithmParams = logicCore.AlgorithmFactory.CreateLayoutParameters(LayoutAlgorithmTypeEnum.KK);
             //Unfortunately to change algo parameters you need to specify params type which is different for every algorithm.
             ((KKLayoutParameters)logicCore.DefaultLayoutAlgorithmParams).MaxIterations = 100;
-            
             //This property sets vertex overlap removal algorithm.
             //Such algorithms help to arrange vertices in the layout so no one overlaps each other.
             logicCore.DefaultOverlapRemovalAlgorithm = OverlapRemovalAlgorithmTypeEnum.FSA;
@@ -144,15 +114,6 @@ namespace GraphxOrtho
             logicCore.EnableParallelEdges = true;
             logicCore.ParallelEdgeDistance = 10;
 
-            //This property sets edge routing algorithm that is used to build route paths according to algorithm logic.
-            //For ex., SimpleER algorithm will try to set edge paths around vertices so no edge will intersect any vertex.
-            //Bundling algorithm will try to tie different edges that follows same direction to a single channel making complex graphs more appealing.
-            
-
-            //logicCore.DefaultEdgeRoutingAlgorithm = EdgeRoutingAlgorithmTypeEnum.SimpleER;
-            //This property sets async algorithms computation so methods like: Area.RelayoutGraph() and Area.GenerateGraph()
-            //will run async with the UI thread. Completion of the specified methods can be catched by corresponding events:
-            //Area.RelayoutFinished and Area.GenerateGraphFinished.
             logicCore.AsyncAlgorithmCompute = false;
             //Finally assign logic core to GraphArea object
             logicCore.ExternalEdgeRoutingAlgorithm = new OrthogonalEdgeRoutingAlgorithm<DataVertex, DataEdge>() { Graph = (GraphExample)logicCore.Graph };
@@ -170,6 +131,7 @@ namespace GraphxOrtho
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
+            Area.RelayoutGraph();
             // Удаляем все линии с графа, чтобы нарисовать новые.
             #region Рисуем оси X и Y и удаляем все предыдущие построения линий и кругов.
             var allLines = Area.GetChildControls<Line>().ToList();
@@ -226,55 +188,55 @@ namespace GraphxOrtho
                 }
             }
             var orthogonalGraph = (Area.LogicCore.ExternalEdgeRoutingAlgorithm as OrthogonalEdgeRoutingAlgorithm<DataVertex, DataEdge>).OrthogonalVisibilityGraph;
-            foreach (var edge in orthogonalGraph.BiderectionalGraph.Edges)
-            {
-                var stroke = Brushes.Green;
-                var strokeThickness = 0.5;
+            //foreach (var edge in orthogonalGraph.BiderectionalGraph.Edges)
+            //{
+            //    var stroke = Brushes.Green;
+            //    var strokeThickness = 0.5;
 
-                if (edge.Source.Point.X == edge.Target.Point.X)
-                {
-                    var lineToAdd = new Line()
-                    {
-                        X1 = edge.Source.Point.X,
-                        Y1 = edge.Source.Point.Y + (edge.Source.Point.Y > edge.Target.Point.Y ? -1 : 1),
-                        X2 = edge.Target.Point.X,
-                        Y2 = edge.Target.Point.Y + (edge.Source.Point.Y > edge.Target.Point.Y ? 1 : -1),
-                        Stroke = stroke,
-                        StrokeThickness = strokeThickness
-                    };
+            //    if (edge.Source.Point.X == edge.Target.Point.X)
+            //    {
+            //        var lineToAdd = new Line()
+            //        {
+            //            X1 = edge.Source.Point.X,
+            //            Y1 = edge.Source.Point.Y + (edge.Source.Point.Y > edge.Target.Point.Y ? -1 : 1),
+            //            X2 = edge.Target.Point.X,
+            //            Y2 = edge.Target.Point.Y + (edge.Source.Point.Y > edge.Target.Point.Y ? 1 : -1),
+            //            Stroke = stroke,
+            //            StrokeThickness = strokeThickness
+            //        };
 
-                    Area.AddCustomChildControl(lineToAdd);
-                }
-                if (edge.Source.Point.Y == edge.Target.Point.Y)
-                {
-                    var lineToAdd = new Line()
-                    {
-                        X1 = edge.Source.Point.X + (edge.Source.Point.X > edge.Target.Point.X ? -1 : 1),
-                        Y1 = edge.Source.Point.Y,
-                        X2 = edge.Target.Point.X - (edge.Source.Point.X > edge.Target.Point.X ? -1 : 1),
-                        Y2 = edge.Target.Point.Y,
-                        Stroke = stroke,
-                        StrokeThickness = strokeThickness
-                    };
+            //        Area.AddCustomChildControl(lineToAdd);
+            //    }
+            //    if (edge.Source.Point.Y == edge.Target.Point.Y)
+            //    {
+            //        var lineToAdd = new Line()
+            //        {
+            //            X1 = edge.Source.Point.X + (edge.Source.Point.X > edge.Target.Point.X ? -1 : 1),
+            //            Y1 = edge.Source.Point.Y,
+            //            X2 = edge.Target.Point.X - (edge.Source.Point.X > edge.Target.Point.X ? -1 : 1),
+            //            Y2 = edge.Target.Point.Y,
+            //            Stroke = stroke,
+            //            StrokeThickness = strokeThickness
+            //        };
 
-                    Area.AddCustomChildControl(lineToAdd);
-                }
+            //        Area.AddCustomChildControl(lineToAdd);
+            //    }
 
-                var textBlock = new TextBlock() { Text = edge.Source.Point.X.ToString("F2") + " ; " + edge.Source.Point.Y.ToString("F2"), 
-                    FontSize = 2};
+            //    var textBlock = new TextBlock() { Text = edge.Source.Point.X.ToString("F2") + " ; " + edge.Source.Point.Y.ToString("F2"), 
+            //        FontSize = 2};
 
-                var sourceCircle = new Ellipse()
-                {
-                    Width = 4,
-                    Height = 4,
-                    Stroke = Brushes.Black,
-                    StrokeThickness = 1
-                };
-                sourceCircle.ToolTip = edge.Source.Point.X.ToString("F2") + " ; " + edge.Source.Point.Y.ToString("F2");
-                Area.AddCustomChildControl(sourceCircle);
-                GraphAreaBase.SetX(sourceCircle, edge.Source.Point.X - 2);
-                GraphAreaBase.SetY(sourceCircle, edge.Source.Point.Y - 2);
-            }
+            //    var sourceCircle = new Ellipse()
+            //    {
+            //        Width = 4,
+            //        Height = 4,
+            //        Stroke = Brushes.Black,
+            //        StrokeThickness = 1
+            //    };
+            //    sourceCircle.ToolTip = edge.Source.Point.X.ToString("F2") + " ; " + edge.Source.Point.Y.ToString("F2");
+            //    Area.AddCustomChildControl(sourceCircle);
+            //    GraphAreaBase.SetX(sourceCircle, edge.Source.Point.X - 2);
+            //    GraphAreaBase.SetY(sourceCircle, edge.Source.Point.Y - 2);
+            //}
             var algorithmBaseClass = (Area.LogicCore.ExternalEdgeRoutingAlgorithm as OrthogonalEdgeRoutingAlgorithm<DataVertex, DataEdge>);
             foreach (var edge in algorithmBaseClass.Graph.Edges)
             {

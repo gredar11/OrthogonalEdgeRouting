@@ -7,8 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraphxOrtho", "GraphxOrtho\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{5471E54C-5FFC-4D3D-A3C3-8FA9238006F0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrthogonalER", "OrthogonalER\OrthogonalER.csproj", "{79DDD85F-45FF-4446-ACAC-6314C3A73B00}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,10 +21,6 @@ Global
 		{5471E54C-5FFC-4D3D-A3C3-8FA9238006F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5471E54C-5FFC-4D3D-A3C3-8FA9238006F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5471E54C-5FFC-4D3D-A3C3-8FA9238006F0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{79DDD85F-45FF-4446-ACAC-6314C3A73B00}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{79DDD85F-45FF-4446-ACAC-6314C3A73B00}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{79DDD85F-45FF-4446-ACAC-6314C3A73B00}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{79DDD85F-45FF-4446-ACAC-6314C3A73B00}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
