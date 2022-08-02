@@ -49,7 +49,7 @@ namespace GraphxOrtho
             Area.SetEdgesDashStyle(EdgeDashStyle.Solid);
             Area.SetVerticesDrag(true);
             Area.SetEdgesDrag(true);
-            Area.ShowAllEdgesArrows(false);
+            Area.ShowAllEdgesArrows(true);
             Area.ShowAllEdgesLabels(false);
 
             zoomctrl.ZoomToFill();
@@ -59,8 +59,9 @@ namespace GraphxOrtho
         {
             //Lets make new data graph instance
             var dataGraph = new GraphExample();
-            
-            for (int i = 1; i <= 50; i++)
+            int countOfNodes = 20;
+            int countOfEdges = 35;
+            for (int i = 1; i <= countOfNodes; i++)
             {
                 
                 var dataVertex = new DataVertex("V - " + i);
@@ -71,17 +72,14 @@ namespace GraphxOrtho
             var vlist = dataGraph.Vertices.ToList(); // Length = 6
             //Then create two edges optionaly defining Text property to show who are connected
             var rand = new System.Random(1);
-            for (int i = 0; i < 60; i++)
+            for (int i = 0; i < countOfEdges; i++)
             {
-                int startV = GiveMeANumber(-1, 50,rand);
-                int endV = GiveMeANumber(startV, 50,rand);
+                int startV = GiveMeANumber(-1, countOfNodes, rand);
+                int endV = GiveMeANumber(startV, countOfNodes, rand);
                 var dataEdge = new DataEdge(vlist[startV], vlist[endV]) { };
                 dataGraph.AddEdge(dataEdge);
             }
 
-            var v1 = dataGraph.Vertices.First();
-            var hasInEdges = dataGraph.TryGetInEdges(v1, out IEnumerable<DataEdge> inedges);
-            var hasOutEdges = dataGraph.TryGetOutEdges(v1, out IEnumerable<DataEdge> outedges);
             return dataGraph;
         }
         private int GiveMeANumber(int excludeInt, int rangeSize, System.Random random)

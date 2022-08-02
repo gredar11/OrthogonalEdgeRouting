@@ -1,12 +1,12 @@
 ﻿using GraphX.Common.Interfaces;
 using GraphX.Measure;
-using GraphxOrtho.Models.OrthogonalTools;
+using GraphXOrthogonalEr.GeometryTools;
 using QuickGraph;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 
-namespace GraphxOrtho.Models
+namespace GraphXOrthogonalEr.AlgorithmTools
 {
     internal class OrthogonalEdgeRoutingAlgorithm<TVertex, TEdge> :
         IExternalEdgeRouting<TVertex, TEdge>

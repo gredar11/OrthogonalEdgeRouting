@@ -3,7 +3,7 @@
                     xmlns:controls="http://schemas.panthernet.ru/graphx/">
     <Style TargetType="{x:Type controls:VertexControl}">
         <Setter Property="Background" Value="Transparent" />
-        <Setter Property="VertexShape" Value="Triangle" />
+        <Setter Property="VertexShape" Value="Rectangle" />
         <Setter Property="ShowLabel" Value="True" />
         <Setter Property="Template">
             <Setter.Value>
@@ -20,5 +20,8 @@
         <!--  VERTEX DRAGGING CONTROL  -->
         <Setter Property="controls:DragBehaviour.IsDragEnabled" Value="True" />
         <Setter Property="controls:DragBehaviour.UpdateEdgesOnMove" Value="True" />
+    </Style>
+    <Style TargetType="{x:Type controls:EdgeControl}">
+        <Setter Property="ShowArrows" Value="False"></Setter>
     </Style>
 </ResourceDictionary>

@@ -1,12 +1,8 @@
 ﻿using GraphX.Common.Interfaces;
 using GraphX.Logic.Algorithms.EdgeRouting;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace GraphxOrtho.Models.OrthogonalTools
+namespace GraphXOrthogonalEr.AlgorithmTools
 {
     internal class PriorityAlgorithm<TVertex, TEdge> 
         where TEdge : class, IGraphXEdge<TVertex>
