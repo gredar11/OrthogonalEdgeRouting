@@ -95,7 +95,6 @@
     <Compile Include="Models\AlgorithmTools\DebugHelper.cs" />
     <Compile Include="Models\AlgorithmTools\GeometryAnalizator.cs" />
     <Compile Include="Models\AlgorithmTools\OrthogonalVertex.cs" />
-    <Compile Include="Models\AlgorithmTools\OrthogonalVisibilityGraph.cs" />
     <Compile Include="Models\DataEdge.cs" />
     <Compile Include="Models\DataVertex.cs" />
     <Compile Include="Models\GraphAreaExample .cs" />
@@ -137,6 +136,12 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Untitled Diagram.drawio %281%29.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GraphXOrthogonalEr\GraphXOrthogonalEr.csproj">
+      <Project>{d299d3f3-9d24-4846-ab05-da8037418e2f}</Project>
+      <Name>GraphXOrthogonalEr</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

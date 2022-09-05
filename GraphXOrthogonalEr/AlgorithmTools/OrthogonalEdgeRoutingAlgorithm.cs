@@ -8,15 +8,15 @@ using System.Threading;
 
 namespace GraphXOrthogonalEr.AlgorithmTools
 {
-    internal class OrthogonalEdgeRoutingAlgorithm<TVertex, TEdge> :
+    public class OrthogonalEdgeRoutingAlgorithm<TVertex, TEdge> :
         IExternalEdgeRouting<TVertex, TEdge>
         where TEdge : class, IGraphXEdge<TVertex>
         where TVertex : class, IGraphXVertex
     {
         public IDictionary<TVertex, Rect> VertexSizes { get; set; }
         public IDictionary<TVertex, Point> VertexPositions { get; set; }
-        public IDictionary<TVertex, OvgVertex<TVertex>> OvgVertices { get; set; }
-        public OrthogonalVisibilityGraphMod<TVertex, TEdge> OrthogonalVisibilityGraph { get; set; }
+        public IDictionary<TVertex, OvgVertex<TVertex, TEdge>> OvgVertices { get; set; }
+        public OrthogonalVisibilityGraph<TVertex, TEdge> OrthogonalVisibilityGraph { get; set; }
         public Rect AreaRectangle { get; set; }
         readonly Dictionary<TEdge, Point[]> _edgeRoutes = new Dictionary<TEdge, Point[]>();
         public IDictionary<TEdge, Point[]> EdgeRoutes { get { return _edgeRoutes; } }
@@ -25,7 +25,7 @@ namespace GraphXOrthogonalEr.AlgorithmTools
 
         public void Compute(CancellationToken cancellationToken)
         {
-            OvgVertices = new Dictionary<TVertex, OvgVertex<TVertex>>();
+            OvgVertices = new Dictionary<TVertex, OvgVertex<TVertex, TEdge>>();
             // setting borders for graph area
             Point leftTopEndOfGraph = new Point(0, 0);
             Point rightBottomEndOfGraph = new Point(0, 0);
@@ -33,7 +33,7 @@ namespace GraphXOrthogonalEr.AlgorithmTools
             // creating ovgVertices see [OvgVertex].
             foreach (var vertex in VertexSizes)
             {
-                OvgVertices[vertex.Key] = new OvgVertex<TVertex>(vertex.Value, leftTopEndOfGraph, rightBottomEndOfGraph, 5.0);
+                OvgVertices[vertex.Key] = new OvgVertex<TVertex, TEdge>(vertex.Value, leftTopEndOfGraph, rightBottomEndOfGraph, 5.0);
             }
             // Creating connection points for each edge with ovgVertices
             foreach (var edge in Graph.Edges)
@@ -42,7 +42,7 @@ namespace GraphXOrthogonalEr.AlgorithmTools
             }
             // Creating orthogonal visibility graph. See more in  M. Wybrow, K. Marriott, and P.J. Stuckey. Orthogonal connector routing.
             // In Proceedings of 17th International Symposium on Graph Drawing(GD '09), LNCS 5849, pages 219–231.Spring - Verlag, 2010. (https://www.adaptagrams.org/documentation/libavoid.html)
-            OrthogonalVisibilityGraph = new OrthogonalVisibilityGraphMod<TVertex, TEdge>(OvgVertices.Values.ToList());
+            OrthogonalVisibilityGraph = new OrthogonalVisibilityGraph<TVertex, TEdge>(OvgVertices.Values.ToList());
             // creating route for each of edge
             foreach (var edge in Graph.Edges)
             {

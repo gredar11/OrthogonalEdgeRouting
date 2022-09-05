@@ -2,17 +2,13 @@
 using GraphX.Common.Enums;
 using GraphX.Controls;
 using GraphX.Logic.Algorithms.LayoutAlgorithms;
-using GraphX.Logic.Algorithms.EdgeRouting;
 using GraphxOrtho.Models;
+using GraphxOrtho.Models.OrthogonalTools;
+using System.Collections;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Shapes;
-using System.Collections.Generic;
-using GraphxOrtho.Models.AlgorithmTools;
-using System.Collections;
-using GraphxOrtho.Models.OrthogonalTools;
-using System.Windows.Controls;
 
 namespace GraphxOrtho
 {
@@ -111,7 +107,9 @@ namespace GraphxOrtho
 
             logicCore.AsyncAlgorithmCompute = false;
             //Finally assign logic core to GraphArea object
+            //logicCore.ExternalEdgeRoutingAlgorithm = new OrthogonalEdgeRoutingAlgorithm<DataVertex, DataEdge>() { Graph = (GraphExample)logicCore.Graph };
             logicCore.ExternalEdgeRoutingAlgorithm = new OrthogonalEdgeRoutingAlgorithm<DataVertex, DataEdge>() { Graph = (GraphExample)logicCore.Graph };
+
             Area.LogicCore = logicCore;
             Area.SetVerticesMathShape(VertexShape.Rectangle);
             System.Console.WriteLine();

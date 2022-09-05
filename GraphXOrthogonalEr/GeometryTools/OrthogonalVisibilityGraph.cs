@@ -13,9 +13,9 @@ namespace GraphXOrthogonalEr.GeometryTools
         where TEdge : class, IGraphXEdge<TVertex>
         where TVertex : class, IGraphXVertex
     {
-        public List<OvgVertex<TVertex>> MainGraphVertices { get; set; }
+        public List<OvgVertex<TVertex, TEdge>> MainGraphVertices { get; set; }
         public BidirectionalGraph<PointWithDirection, Edge<PointWithDirection>> BiderectionalGraph { get; set; }
-        public OrthogonalVisibilityGraphMod(List<OvgVertex<TVertex>> mainGraphVertices)
+        public OrthogonalVisibilityGraphMod(List<OvgVertex<TVertex, TEdge>> mainGraphVertices)
         {
             BiderectionalGraph = new BidirectionalGraph<PointWithDirection, Edge<PointWithDirection>>();
             MainGraphVertices = mainGraphVertices;
@@ -26,13 +26,13 @@ namespace GraphXOrthogonalEr.GeometryTools
             }
             AddOvgToZoomControl();
         }
-        public void CutHorizontalSegments(OvgVertex<TVertex> currentVertex)
+        public void CutHorizontalSegments(OvgVertex<TVertex, TEdge> currentVertex)
         {
             // Проходим по каждому сегменту узла
             foreach (var segment in currentVertex.HorizontalSegments)
             {
                 // если узел пересекает 
-                foreach (OvgVertex<TVertex> vertex in MainGraphVertices)
+                foreach (OvgVertex<TVertex, TEdge> vertex in MainGraphVertices)
                 {
                     // пропускаем если это тот же узел, что и текущий по итерации.
                     if (vertex.Equals(currentVertex))
@@ -48,13 +48,13 @@ namespace GraphXOrthogonalEr.GeometryTools
                 }
             }
         }
-        public void CutVerticalSegments(OvgVertex<TVertex> currentVertex)
+        public void CutVerticalSegments(OvgVertex<TVertex, TEdge> currentVertex)
         {
             // Проходим по каждому сегменту узла
             foreach (var segment in currentVertex.VerticalSegments)
             {
                 // если узел пересекает 
-                foreach (OvgVertex<TVertex> vertex in MainGraphVertices)
+                foreach (OvgVertex<TVertex, TEdge> vertex in MainGraphVertices)
                 {
                     // пропускаем если это тот же узел, что и текущий по итерации.
                     if (vertex.Equals(currentVertex))
@@ -71,7 +71,7 @@ namespace GraphXOrthogonalEr.GeometryTools
             }
         }
         
-        private void CutHorizontalSegment(Line horSegment, OvgVertex<TVertex> vertex, OvgVertex<TVertex> segmentParentVertex)
+        private void CutHorizontalSegment(Line horSegment, OvgVertex<TVertex, TEdge> vertex, OvgVertex<TVertex, TEdge> segmentParentVertex)
         {
             if (vertex.Position.X > segmentParentVertex.Position.X)
             {
@@ -93,7 +93,7 @@ namespace GraphXOrthogonalEr.GeometryTools
                     horSegment.X1 = newX1;
             }
         }
-        private void CutVerticalSegment(Line vertivcalSegment, OvgVertex<TVertex> vertex, OvgVertex<TVertex> segmentParentVertex)
+        private void CutVerticalSegment(Line vertivcalSegment, OvgVertex<TVertex, TEdge> vertex, OvgVertex<TVertex, TEdge> segmentParentVertex)
         {
             if (vertex.Position.Y > segmentParentVertex.Position.Y)
             {
@@ -207,7 +207,7 @@ namespace GraphXOrthogonalEr.GeometryTools
             // ptinting all vertices of Ovg
 
         }
-        public void AddConnectionSegment(OvgVertex<TVertex> ovgVertex, Point connectionPoint)
+        public void AddConnectionSegment(OvgVertex<TVertex, TEdge> ovgVertex, Point connectionPoint)
         {
             double topSide = ovgVertex.Position.Y;
             double bottomSide = ovgVertex.Position.Y + ovgVertex.SizeOfVertex.Height;

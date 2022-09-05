@@ -10,8 +10,8 @@ namespace GraphXOrthogonalEr.AlgorithmTools
     {
         PriorityPoint startPoint { get; set; }
         PriorityPoint destinationPoint { get; set; }
-        OrthogonalVisibilityGraphMod<TVertex, TEdge> OrthogonalVisibilityGraph { get; set; }
-        public PriorityAlgorithm(PriorityPoint startPoint, PriorityPoint destinationPoint, OrthogonalVisibilityGraphMod<TVertex, TEdge> orthogonalVisibilityGraph)
+        OrthogonalVisibilityGraph<TVertex, TEdge> OrthogonalVisibilityGraph { get; set; }
+        public PriorityAlgorithm(PriorityPoint startPoint, PriorityPoint destinationPoint, OrthogonalVisibilityGraph<TVertex, TEdge> orthogonalVisibilityGraph)
         {
             this.startPoint = startPoint;
             this.destinationPoint = destinationPoint;

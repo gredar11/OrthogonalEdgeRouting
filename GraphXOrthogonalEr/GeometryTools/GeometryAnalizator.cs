@@ -10,11 +10,11 @@ namespace GraphXOrthogonalEr.GeometryTools
         where TVertex : class, IGraphXVertex
     {
         
-        private static bool HorizontalLineIsOnVertexLevel(OvgVertex<TVertex> vertex, Line line)
+        private static bool HorizontalLineIsOnVertexLevel(OvgVertex<TVertex, TEdge> vertex, Line line)
         {
             return line.Y1 >= vertex.Position.Y - vertex.MarginToEdge && line.Y1 <= vertex.Position.Y + vertex.SizeOfVertex.Height + vertex.MarginToEdge;
         }
-        private static bool VerticalLineIsOnVertexLevel(OvgVertex<TVertex> vertex, Line line)
+        private static bool VerticalLineIsOnVertexLevel(OvgVertex<TVertex, TEdge> vertex, Line line)
         {
             return line.X1 >= vertex.Position.X - vertex.MarginToEdge && line.X1 <= vertex.Position.X + vertex.SizeOfVertex.Width + vertex.MarginToEdge;
         }
@@ -24,7 +24,13 @@ namespace GraphXOrthogonalEr.GeometryTools
             double b = line.Y1 - k * line.X1;
             return k * x + b;
         }
-        public static bool LineIntersectsOrthogonalVertex(OvgVertex<TVertex> orthogonalVertex, Line line)
+        /// <summary>
+        /// Check if Line intersects boundary of orthogonal vertex
+        /// </summary>
+        /// <param name="orthogonalVertex"></param>
+        /// <param name="line"></param>
+        /// <returns></returns>
+        public static bool LineIntersectsOrthogonalVertex(OvgVertex<TVertex, TEdge> orthogonalVertex, Line line)
         {
             double top = orthogonalVertex.Position.Y + orthogonalVertex.SizeOfVertex.Height + orthogonalVertex.MarginToEdge;
             double bottom = orthogonalVertex.Position.Y - orthogonalVertex.MarginToEdge;
@@ -44,11 +50,11 @@ namespace GraphXOrthogonalEr.GeometryTools
             }
             return false;
         }
-        public static void SetConnectionPointsToVerticesOfEdge(OvgVertex<TVertex> sourceVertex, OvgVertex<TVertex> targetVertex, TEdge edge)
+        public static void SetConnectionPointsToVerticesOfEdge(OvgVertex<TVertex, TEdge> sourceVertex, OvgVertex<TVertex, TEdge> targetVertex, TEdge edge)
         {
             if (sourceVertex.Position.X == targetVertex.Position.X && sourceVertex.Position.Y == targetVertex.Position.Y)
                 throw new Exception("Points in the same place");
-            // если линия горизонтальна
+            // if line is horizontal
             if(sourceVertex.Position.Y == targetVertex.Position.Y)
             {
                 if(sourceVertex.Position.X > targetVertex.Position.X)
@@ -61,7 +67,7 @@ namespace GraphXOrthogonalEr.GeometryTools
                 targetVertex.ConnectionPoints[edge] = new Point(targetVertex.SizeOfVertex.Left, targetVertex.Position.Y + targetVertex.SizeOfVertex.Height / 2);
                 return;
             }
-            // если линия вертикальная
+            //  if line is vertical
             if (sourceVertex.Position.X == targetVertex.Position.X)
             {
                 if(sourceVertex.Position.Y > targetVertex.Position.Y)
@@ -74,12 +80,12 @@ namespace GraphXOrthogonalEr.GeometryTools
                 sourceVertex.ConnectionPoints[edge] = new Point(sourceVertex.Position.X + sourceVertex.SizeOfVertex.Width / 2, sourceVertex.Position.Y + sourceVertex.SizeOfVertex.Height);
                 return;
             }
-            // если линия под наклоном.
+            // if line has angle
             var pointsToAdd = GetConnectionPointOfTwoVertex(sourceVertex, targetVertex);
             sourceVertex.ConnectionPoints[edge] = pointsToAdd[0];
             targetVertex.ConnectionPoints[edge] = pointsToAdd[1];
         }
-        private static Point[] GetConnectionPointOfTwoVertex(OvgVertex<TVertex> sourceVertex, OvgVertex<TVertex> targetVertex)
+        private static Point[] GetConnectionPointOfTwoVertex(OvgVertex<TVertex, TEdge> sourceVertex, OvgVertex<TVertex, TEdge> targetVertex)
         {
             Point[] connectionPoints = new Point[2];
             // Line parameters
@@ -88,60 +94,91 @@ namespace GraphXOrthogonalEr.GeometryTools
             double k = kAndB[0];
             double b = kAndB[1];
             // 1 and 3 quadrants.
-            if (targetVertex.Position.X > sourceVertex.Position.X && targetVertex.Position.Y > sourceVertex.Position.Y
-                || sourceVertex.Position.X > targetVertex.Position.X && sourceVertex.Position.Y > targetVertex.Position.Y)
+            if (VerticesIsIn1And3Quadrants(sourceVertex, targetVertex))
             {
-                bool sourceIsUnderTarget = sourceVertex.Position.Y < targetVertex.Position.Y;
-                var leftBottomV = sourceIsUnderTarget ? sourceVertex : targetVertex;
-                var rightTopV = sourceIsUnderTarget ? targetVertex : sourceVertex;
-
-                // left bottom vertex connection point
-                var topSideIntersectionX = CalculateX(k, b, leftBottomV.Position.Y + leftBottomV.SizeOfVertex.Height);
-                var rightIntersectionY = CalculateY(k, b, leftBottomV.Position.X + leftBottomV.SizeOfVertex.Width);
-                // if intersects top side
-                if (topSideIntersectionX >= leftBottomV.Position.X && topSideIntersectionX <= leftBottomV.Position.X + leftBottomV.SizeOfVertex.Width) 
-                    connectionPoints[leftBottomV == sourceVertex ? 0 : 1] = new Point(topSideIntersectionX, leftBottomV.Position.Y + leftBottomV.SizeOfVertex.Height);
-                // if intersects right side
-                if(rightIntersectionY >= leftBottomV.Position.Y && rightIntersectionY <= leftBottomV.Position.Y + leftBottomV.SizeOfVertex.Height)
-                    connectionPoints[leftBottomV == sourceVertex ? 0 : 1] = new Point(leftBottomV.Position.X + leftBottomV.SizeOfVertex.Width, rightIntersectionY);
-                // left bottom vertex connection point
-                var botSideIntersectionX = CalculateX(k, b, rightTopV.Position.Y);
-                var leftSideIntersectionY = CalculateY(k, b, rightTopV.Position.X);
-                // if line intersects bottom side
-                if (botSideIntersectionX >= rightTopV.Position.X && botSideIntersectionX <= rightTopV.Position.X + rightTopV.SizeOfVertex.Width)
-                    connectionPoints[rightTopV == sourceVertex ? 0 : 1] = new Point(botSideIntersectionX, rightTopV.Position.Y);
-                // if line intersects left side
-                if (leftSideIntersectionY >= rightTopV.Position.Y && leftSideIntersectionY <= rightTopV.Position.Y + rightTopV.SizeOfVertex.Height)
-                    connectionPoints[rightTopV == sourceVertex ? 0 : 1] = new Point(rightTopV.Position.X, leftSideIntersectionY);
+                SetConnectionPointsToVertices13(sourceVertex, targetVertex, connectionPoints, k, b);
             }
-            if (targetVertex.Position.X > sourceVertex.Position.X && targetVertex.Position.Y < sourceVertex.Position.Y
-                || sourceVertex.Position.X > targetVertex.Position.X && sourceVertex.Position.Y < targetVertex.Position.Y)
+            if (VerticesIsIn2And4Quadrants(sourceVertex, targetVertex))
             {
-                bool sourceIsUnderTarget = sourceVertex.Position.Y < targetVertex.Position.Y;
-                var leftTopV = sourceIsUnderTarget ? targetVertex : sourceVertex;
-                var rightBottomV = sourceIsUnderTarget ? sourceVertex : targetVertex;
-
-                // left bottom vertex connection point
-                var topSideIntersectionX = CalculateX(k, b, rightBottomV.Position.Y + rightBottomV.SizeOfVertex.Height);
-                var leftIntersectionY = CalculateY(k, b, rightBottomV.Position.X);
-
-                if (topSideIntersectionX >= rightBottomV.Position.X && topSideIntersectionX <= rightBottomV.Position.X + rightBottomV.SizeOfVertex.Width)
-                    connectionPoints[rightBottomV == sourceVertex ? 0 : 1] = new Point(topSideIntersectionX, rightBottomV.Position.Y + rightBottomV.SizeOfVertex.Height);
-
-                if (leftIntersectionY >= rightBottomV.Position.Y && leftIntersectionY <= rightBottomV.Position.Y + rightBottomV.SizeOfVertex.Height)
-                    connectionPoints[rightBottomV == sourceVertex ? 0 : 1] = new Point(rightBottomV.Position.X, leftIntersectionY);
-                // left bottom vertex connection point
-                var botSideIntersectionX = CalculateX(k, b, leftTopV.Position.Y);
-                var rightSideIntersectionY = CalculateY(k, b, leftTopV.Position.X + leftTopV.SizeOfVertex.Width);
-
-                if (botSideIntersectionX >= leftTopV.Position.X && botSideIntersectionX <= leftTopV.Position.X + leftTopV.SizeOfVertex.Width)
-                    connectionPoints[leftTopV == sourceVertex ? 0 : 1] = new Point(botSideIntersectionX, leftTopV.Position.Y);
-
-                if (rightSideIntersectionY >= leftTopV.Position.Y && rightSideIntersectionY <= leftTopV.Position.Y + leftTopV.SizeOfVertex.Height)
-                    connectionPoints[leftTopV == sourceVertex ? 0 : 1] = new Point(leftTopV.Position.X + leftTopV.SizeOfVertex.Width, rightSideIntersectionY);
+                SetConnectionPointsToVertices24(sourceVertex, targetVertex, connectionPoints, k, b);
             }
             return connectionPoints;
         }
+
+        private static void SetConnectionPointsToVertices24(OvgVertex<TVertex, TEdge> sourceVertex, OvgVertex<TVertex, TEdge> targetVertex, Point[] connectionPoints, double k, double b)
+        {
+            bool sourceIsUnderTarget = sourceVertex.Position.Y < targetVertex.Position.Y;
+            var leftTopV = sourceIsUnderTarget ? targetVertex : sourceVertex;
+            var rightBottomV = sourceIsUnderTarget ? sourceVertex : targetVertex;
+
+            // left bottom vertex connection point
+            var topSideIntersectionX = CalculateX(k, b, rightBottomV.Position.Y + rightBottomV.SizeOfVertex.Height);
+            var leftIntersectionY = CalculateY(k, b, rightBottomV.Position.X);
+
+            if (PointLiesOnLeftOrRightSide(rightBottomV, topSideIntersectionX))
+                connectionPoints[rightBottomV == sourceVertex ? 0 : 1] = new Point(topSideIntersectionX, rightBottomV.Position.Y + rightBottomV.SizeOfVertex.Height);
+
+            if (PointLiesOnLeftOrRightSide(rightBottomV, leftIntersectionY))
+                connectionPoints[rightBottomV == sourceVertex ? 0 : 1] = new Point(rightBottomV.Position.X, leftIntersectionY);
+            // left bottom vertex connection point
+            var botSideIntersectionX = CalculateX(k, b, leftTopV.Position.Y);
+            var rightSideIntersectionY = CalculateY(k, b, leftTopV.Position.X + leftTopV.SizeOfVertex.Width);
+
+            if (PointLiesOnLeftOrRightSide(leftTopV, botSideIntersectionX))
+                connectionPoints[leftTopV == sourceVertex ? 0 : 1] = new Point(botSideIntersectionX, leftTopV.Position.Y);
+
+            if (PointLiesOnLeftOrRightSide(leftTopV, rightSideIntersectionY))
+                connectionPoints[leftTopV == sourceVertex ? 0 : 1] = new Point(leftTopV.Position.X + leftTopV.SizeOfVertex.Width, rightSideIntersectionY);
+        }
+
+        private static bool VerticesIsIn2And4Quadrants(OvgVertex<TVertex, TEdge> sourceVertex, OvgVertex<TVertex, TEdge> targetVertex)
+        {
+            return targetVertex.Position.X > sourceVertex.Position.X && targetVertex.Position.Y < sourceVertex.Position.Y
+                            || sourceVertex.Position.X > targetVertex.Position.X && sourceVertex.Position.Y < targetVertex.Position.Y;
+        }
+
+        private static void SetConnectionPointsToVertices13(OvgVertex<TVertex, TEdge> sourceVertex, OvgVertex<TVertex, TEdge> targetVertex, Point[] connectionPoints, double k, double b)
+        {
+            bool sourceIsUnderTarget = sourceVertex.Position.Y < targetVertex.Position.Y;
+            var leftBottomV = sourceIsUnderTarget ? sourceVertex : targetVertex;
+            var rightTopV = sourceIsUnderTarget ? targetVertex : sourceVertex;
+
+            // left bottom vertex connection point
+            var topSideIntersectionX = CalculateX(k, b, leftBottomV.Position.Y + leftBottomV.SizeOfVertex.Height);
+            var rightIntersectionY = CalculateY(k, b, leftBottomV.Position.X + leftBottomV.SizeOfVertex.Width);
+            // if intersects top side
+            if (PointLiesOnTopOrBottomSide(leftBottomV, topSideIntersectionX))
+                connectionPoints[leftBottomV == sourceVertex ? 0 : 1] = new Point(topSideIntersectionX, leftBottomV.Position.Y + leftBottomV.SizeOfVertex.Height);
+            // if intersects right side
+            if (PointLiesOnLeftOrRightSide(leftBottomV, rightIntersectionY))
+                connectionPoints[leftBottomV == sourceVertex ? 0 : 1] = new Point(leftBottomV.Position.X + leftBottomV.SizeOfVertex.Width, rightIntersectionY);
+            // left bottom vertex connection point
+            var botSideIntersectionX = CalculateX(k, b, rightTopV.Position.Y);
+            var leftSideIntersectionY = CalculateY(k, b, rightTopV.Position.X);
+            // if line intersects bottom side
+            if (PointLiesOnTopOrBottomSide(rightTopV, botSideIntersectionX))
+                connectionPoints[rightTopV == sourceVertex ? 0 : 1] = new Point(botSideIntersectionX, rightTopV.Position.Y);
+            // if line intersects left side
+            if (PointLiesOnLeftOrRightSide(rightTopV, leftSideIntersectionY))
+                connectionPoints[rightTopV == sourceVertex ? 0 : 1] = new Point(rightTopV.Position.X, leftSideIntersectionY);
+        }
+
+        private static bool PointLiesOnLeftOrRightSide(OvgVertex<TVertex, TEdge> ovgVertex, double leftSideIntersectionY)
+        {
+            return leftSideIntersectionY >= ovgVertex.Position.Y && leftSideIntersectionY <= ovgVertex.Position.Y + ovgVertex.SizeOfVertex.Height;
+        }
+
+        private static bool PointLiesOnTopOrBottomSide(OvgVertex<TVertex, TEdge> ovgVertex, double botSideIntersectionX)
+        {
+            return botSideIntersectionX >= ovgVertex.Position.X && botSideIntersectionX <= ovgVertex.Position.X + ovgVertex.SizeOfVertex.Width;
+        }
+
+        private static bool VerticesIsIn1And3Quadrants(OvgVertex<TVertex, TEdge> sourceVertex, OvgVertex<TVertex, TEdge> targetVertex)
+        {
+            return targetVertex.Position.X > sourceVertex.Position.X && targetVertex.Position.Y > sourceVertex.Position.Y
+                            || sourceVertex.Position.X > targetVertex.Position.X && sourceVertex.Position.Y > targetVertex.Position.Y;
+        }
+
         private static double[] CalculateKandB(Point p1, Point p2)
         {
             double k = (p1.Y - p2.Y) / (p1.X - p2.X);

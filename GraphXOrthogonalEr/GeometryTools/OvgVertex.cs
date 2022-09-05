@@ -6,7 +6,9 @@ using System.Windows.Shapes;
 
 namespace GraphXOrthogonalEr.GeometryTools
 {
-    public class OvgVertex<TVertex> where TVertex : class, IGraphXVertex
+    public class OvgVertex<TVertex, TEdge>
+        where TEdge : class, IGraphXEdge<TVertex>
+        where TVertex : class, IGraphXVertex
     {
         public IGraphXVertex DataVertex { get; set; }
         public Point Position { get; }
@@ -14,11 +16,11 @@ namespace GraphXOrthogonalEr.GeometryTools
         public Rect SizeOfVertex { get; }
         public List<Line> HorizontalSegments { get; }
         public List<Line> VerticalSegments { get; }
-        public Dictionary<IGraphXEdge<TVertex>, Point> ConnectionPoints { get; set; }
+        public Dictionary<TEdge, Point> ConnectionPoints { get; set; }
 
         public OvgVertex(Rect vertexSize, Point leftTopPoint, Point rightBottomPoint, double marginBetweenEdgeAndNode)
         {
-            ConnectionPoints = new Dictionary<IGraphXEdge<TVertex>, Point>();
+            ConnectionPoints = new Dictionary<TEdge, Point>();
             SizeOfVertex = vertexSize;
             Position = SizeOfVertex.Location;
             VerticalSegments = new List<Line>();
@@ -61,7 +63,7 @@ namespace GraphXOrthogonalEr.GeometryTools
             });
         }
 
-        public void SetConnectionEdges(Point leftTop, Point rightBottom, IGraphXEdge<TVertex> edge)
+        public void SetConnectionEdges(Point leftTop, Point rightBottom, TEdge edge)
         {
             AddSegmentByPoint(ConnectionPoints[edge], leftTop, rightBottom);
         }
