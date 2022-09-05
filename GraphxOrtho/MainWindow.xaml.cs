@@ -9,7 +9,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Shapes;
-
+using Oer = GraphXOrthogonalEr.AlgorithmTools;
 namespace GraphxOrtho
 {
     /// <summary>
@@ -108,7 +108,7 @@ namespace GraphxOrtho
             logicCore.AsyncAlgorithmCompute = false;
             //Finally assign logic core to GraphArea object
             //logicCore.ExternalEdgeRoutingAlgorithm = new OrthogonalEdgeRoutingAlgorithm<DataVertex, DataEdge>() { Graph = (GraphExample)logicCore.Graph };
-            logicCore.ExternalEdgeRoutingAlgorithm = new OrthogonalEdgeRoutingAlgorithm<DataVertex, DataEdge>() { Graph = (GraphExample)logicCore.Graph };
+            logicCore.ExternalEdgeRoutingAlgorithm = new Oer.OrthogonalEdgeRoutingAlgorithm<DataVertex, DataEdge>() { Graph = (GraphExample)logicCore.Graph };
 
             Area.LogicCore = logicCore;
             Area.SetVerticesMathShape(VertexShape.Rectangle);
@@ -162,7 +162,7 @@ namespace GraphxOrtho
             #endregion
 
             //var sourcePointOfEdge = GetSourcePointOfEdge(firstEdge);
-            var ovgVertices = (Area.LogicCore.ExternalEdgeRoutingAlgorithm as OrthogonalEdgeRoutingAlgorithm<DataVertex, DataEdge>).OvgVertices;
+            var ovgVertices = (Area.LogicCore.ExternalEdgeRoutingAlgorithm as Oer.OrthogonalEdgeRoutingAlgorithm<DataVertex, DataEdge>).OvgVertices;
             foreach (var vertex in ovgVertices.Values)
             {
                 foreach (var connPoint in vertex.ConnectionPoints.Values)
@@ -180,7 +180,7 @@ namespace GraphxOrtho
 
                 }
             }
-            var orthogonalGraph = (Area.LogicCore.ExternalEdgeRoutingAlgorithm as OrthogonalEdgeRoutingAlgorithm<DataVertex, DataEdge>).OrthogonalVisibilityGraph;
+            var orthogonalGraph = (Area.LogicCore.ExternalEdgeRoutingAlgorithm as Oer.OrthogonalEdgeRoutingAlgorithm<DataVertex, DataEdge>).OrthogonalVisibilityGraph;
             foreach (var edge in orthogonalGraph.BiderectionalGraph.Edges)
             {
                 var stroke = Brushes.LightGray;
@@ -233,7 +233,7 @@ namespace GraphxOrtho
                 //GraphAreaBase.SetX(sourceCircle, edge.Source.Point.X - 2);
                 //GraphAreaBase.SetY(sourceCircle, edge.Source.Point.Y - 2);
             }
-            var algorithmBaseClass = (Area.LogicCore.ExternalEdgeRoutingAlgorithm as OrthogonalEdgeRoutingAlgorithm<DataVertex, DataEdge>);
+            var algorithmBaseClass = (Area.LogicCore.ExternalEdgeRoutingAlgorithm as Oer.OrthogonalEdgeRoutingAlgorithm<DataVertex, DataEdge>);
             //foreach (var edge in algorithmBaseClass.Graph.Edges)
             //{
             //    DrawOrthogonalEdge(algorithmBaseClass, edge);

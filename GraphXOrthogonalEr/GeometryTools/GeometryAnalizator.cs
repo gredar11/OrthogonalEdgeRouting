@@ -115,7 +115,7 @@ namespace GraphXOrthogonalEr.GeometryTools
             var topSideIntersectionX = CalculateX(k, b, rightBottomV.Position.Y + rightBottomV.SizeOfVertex.Height);
             var leftIntersectionY = CalculateY(k, b, rightBottomV.Position.X);
 
-            if (PointLiesOnLeftOrRightSide(rightBottomV, topSideIntersectionX))
+            if (PointLiesOnTopOrBottomSide(rightBottomV, topSideIntersectionX))
                 connectionPoints[rightBottomV == sourceVertex ? 0 : 1] = new Point(topSideIntersectionX, rightBottomV.Position.Y + rightBottomV.SizeOfVertex.Height);
 
             if (PointLiesOnLeftOrRightSide(rightBottomV, leftIntersectionY))
@@ -124,7 +124,7 @@ namespace GraphXOrthogonalEr.GeometryTools
             var botSideIntersectionX = CalculateX(k, b, leftTopV.Position.Y);
             var rightSideIntersectionY = CalculateY(k, b, leftTopV.Position.X + leftTopV.SizeOfVertex.Width);
 
-            if (PointLiesOnLeftOrRightSide(leftTopV, botSideIntersectionX))
+            if (PointLiesOnTopOrBottomSide(leftTopV, botSideIntersectionX))
                 connectionPoints[leftTopV == sourceVertex ? 0 : 1] = new Point(botSideIntersectionX, leftTopV.Position.Y);
 
             if (PointLiesOnLeftOrRightSide(leftTopV, rightSideIntersectionY))
