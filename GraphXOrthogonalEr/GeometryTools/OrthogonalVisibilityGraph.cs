@@ -9,7 +9,7 @@ using System.Windows.Shapes;
 
 namespace GraphXOrthogonalEr.GeometryTools
 {
-    public class OrthogonalVisibilityGraphMod<TVertex, TEdge> 
+    public class OrthogonalVisibilityGraphMod<TVertex, TEdge>
         where TEdge : class, IGraphXEdge<TVertex>
         where TVertex : class, IGraphXVertex
     {
@@ -24,24 +24,18 @@ namespace GraphXOrthogonalEr.GeometryTools
                 CutHorizontalSegments(vertex);
                 CutVerticalSegments(vertex);
             }
-            AddOvgToZoomControl();
+            CreateBiderectionalGraphWithConnectionPoints();
         }
         public void CutHorizontalSegments(OvgVertex<TVertex, TEdge> currentVertex)
         {
-            // Проходим по каждому сегменту узла
             foreach (var segment in currentVertex.HorizontalSegments)
             {
-                // если узел пересекает 
                 foreach (OvgVertex<TVertex, TEdge> vertex in MainGraphVertices)
                 {
-                    // пропускаем если это тот же узел, что и текущий по итерации.
                     if (vertex.Equals(currentVertex))
                         continue;
-                    // если сегмент пересекает фигуру узла, то обрезаем его в зависимости от положения
-                    // этих узлов. ->
                     if (GeometryAnalizator<TVertex, TEdge>.LineIntersectsOrthogonalVertex(vertex, segment))
                     {
-                        // -> то обрезаем его в зависимости от положения этих узлов.
                         CutHorizontalSegment(segment, vertex, currentVertex);
                     }
 
@@ -50,32 +44,25 @@ namespace GraphXOrthogonalEr.GeometryTools
         }
         public void CutVerticalSegments(OvgVertex<TVertex, TEdge> currentVertex)
         {
-            // Проходим по каждому сегменту узла
             foreach (var segment in currentVertex.VerticalSegments)
             {
-                // если узел пересекает 
                 foreach (OvgVertex<TVertex, TEdge> vertex in MainGraphVertices)
                 {
-                    // пропускаем если это тот же узел, что и текущий по итерации.
                     if (vertex.Equals(currentVertex))
                         continue;
-                    // если сегмент пересекает фигуру узла, то обрезаем его в зависимости от положения
-                    // этих узлов. ->
-                    if (GeometryAnalizator<TVertex,TEdge>.LineIntersectsOrthogonalVertex(vertex, segment))
+                    if (GeometryAnalizator<TVertex, TEdge>.LineIntersectsOrthogonalVertex(vertex, segment))
                     {
-                        // -> то обрезаем его в зависимости от положения этих узлов.
                         CutVerticalSegment(segment, vertex, currentVertex);
                     }
 
                 }
             }
         }
-        
+
         private void CutHorizontalSegment(Line horSegment, OvgVertex<TVertex, TEdge> vertex, OvgVertex<TVertex, TEdge> segmentParentVertex)
         {
             if (vertex.Position.X > segmentParentVertex.Position.X)
             {
-                // обрезаем справа
                 double newX2 = vertex.Position.X - vertex.MarginToEdge;
 
                 if (newX2 < horSegment.X2 && horSegment.X2 > horSegment.X1)
@@ -85,7 +72,6 @@ namespace GraphXOrthogonalEr.GeometryTools
             }
             else
             {
-                // обрезаем слева
                 double newX1 = vertex.Position.X + vertex.SizeOfVertex.Width + vertex.MarginToEdge;
                 if (newX1 > horSegment.X2 && horSegment.X2 < horSegment.X1)
                     horSegment.X2 = newX1;
@@ -97,7 +83,6 @@ namespace GraphXOrthogonalEr.GeometryTools
         {
             if (vertex.Position.Y > segmentParentVertex.Position.Y)
             {
-                // обрезаем сверху
                 double newY2 = vertex.Position.Y - vertex.MarginToEdge;
                 if (newY2 < vertivcalSegment.Y2 && vertivcalSegment.Y2 > vertivcalSegment.Y1)
                     vertivcalSegment.Y2 = newY2;
@@ -107,9 +92,8 @@ namespace GraphXOrthogonalEr.GeometryTools
             }
             else
             {
-                // обрезаем снизу
                 double newY1 = vertex.Position.Y + vertex.SizeOfVertex.Height + vertex.MarginToEdge;
-                
+
                 if (newY1 > vertivcalSegment.Y2 && vertivcalSegment.Y2 < vertivcalSegment.Y1)
                     vertivcalSegment.Y2 = newY1;
 
@@ -123,16 +107,19 @@ namespace GraphXOrthogonalEr.GeometryTools
             var verticalDiapazonY = new double[] { verticalSegment.Y1, verticalSegment.Y2 };
             Array.Sort(verticalDiapazonY);
             Array.Sort(horizontalDiapazonX);
+            // if lines are CROSSED:
             if (verticalSegment.X1 >= horizontalDiapazonX[0] && verticalSegment.X1 <= horizontalDiapazonX[1]
                 && horizontalSegment.Y1 >= verticalDiapazonY[0] && horizontalSegment.Y1 <= verticalDiapazonY[1])
                 return new PointWithDirection() { Point = new Point(verticalSegment.X1, horizontalSegment.Y1) };
             return null;
         }
-        public void AddOvgToZoomControl()
+        // Creating Biderectional graph with connection points. It represents orthogonal visibility graph
+        // Possible edge routing goes on graph's edges.
+        public void CreateBiderectionalGraphWithConnectionPoints()
         {
             List<Line> horizontalSegments = new List<Line>();
             List<Line> verticalSegments = new List<Line>();
-            
+
             foreach (var vertex in MainGraphVertices)
             {
                 foreach (var segment in vertex.HorizontalSegments)
@@ -146,8 +133,7 @@ namespace GraphXOrthogonalEr.GeometryTools
                     verticalSegments.Add(segment);
                 }
             }
-            // vertices of Ovg
-            // dictionary of segments for adding edges of graph
+            // Making intersection of all segments(horizontal and vertical)
             Dictionary<Line, List<PointWithDirection>> segmentsWithPoints = new Dictionary<Line, List<PointWithDirection>>();
             foreach (var hsegment in horizontalSegments)
             {
@@ -169,7 +155,7 @@ namespace GraphXOrthogonalEr.GeometryTools
                     }
                 }
             }
-            // printing all edges of Ovg
+            // Addition edges and vertices to graph.
             foreach (var lineSegment in segmentsWithPoints)
             {
                 if (IsLineHorizontal(lineSegment.Key))
@@ -204,26 +190,24 @@ namespace GraphXOrthogonalEr.GeometryTools
                     AddConnectionSegment(vertex, connPoint);
                 }
             }
-            // ptinting all vertices of Ovg
-
         }
         public void AddConnectionSegment(OvgVertex<TVertex, TEdge> ovgVertex, Point connectionPoint)
         {
-            double topSide = ovgVertex.Position.Y;
-            double bottomSide = ovgVertex.Position.Y + ovgVertex.SizeOfVertex.Height;
+            double bottomSide = ovgVertex.Position.Y;
+            double topSide = ovgVertex.Position.Y + ovgVertex.SizeOfVertex.Height;
             double leftSide = ovgVertex.Position.X;
             double rightSide = ovgVertex.Position.X + ovgVertex.SizeOfVertex.Width;
-            if (connectionPoint.Y == topSide)
-                BiderectionalGraph.AddVerticesAndEdge(new Edge<PointWithDirection>(new PointWithDirection() { Point = new Point(connectionPoint.X, connectionPoint.Y) }, new PointWithDirection() { Point = new Point { X = connectionPoint.X, Y = connectionPoint.Y - ovgVertex.MarginToEdge} }));
-            
+            if (connectionPoint.Y == bottomSide)
+                BiderectionalGraph.AddVerticesAndEdge(new Edge<PointWithDirection>(new PointWithDirection() { Point = new Point(connectionPoint.X, connectionPoint.Y) }, new PointWithDirection() { Point = new Point { X = connectionPoint.X, Y = connectionPoint.Y - ovgVertex.MarginToEdge } }));
+
             if (connectionPoint.X == rightSide)
                 BiderectionalGraph.AddVerticesAndEdge(new Edge<PointWithDirection>(new PointWithDirection() { Point = new Point(connectionPoint.X, connectionPoint.Y) }, new PointWithDirection() { Point = new Point { X = connectionPoint.X + ovgVertex.MarginToEdge, Y = connectionPoint.Y } }));
 
-            if (connectionPoint.Y == bottomSide)
-                BiderectionalGraph.AddVerticesAndEdge(new Edge<PointWithDirection>(new PointWithDirection() { Point = new Point(connectionPoint.X, connectionPoint.Y) }, new PointWithDirection() { Point = new Point { X = connectionPoint.X, Y = connectionPoint.Y + ovgVertex.MarginToEdge} }));
+            if (connectionPoint.Y == topSide)
+                BiderectionalGraph.AddVerticesAndEdge(new Edge<PointWithDirection>(new PointWithDirection() { Point = new Point(connectionPoint.X, connectionPoint.Y) }, new PointWithDirection() { Point = new Point { X = connectionPoint.X, Y = connectionPoint.Y + ovgVertex.MarginToEdge } }));
 
             if (connectionPoint.X == leftSide)
-                BiderectionalGraph.AddVerticesAndEdge(new Edge<PointWithDirection>(new PointWithDirection() { Point = new Point(connectionPoint.X, connectionPoint.Y) }, new PointWithDirection() { Point = new Point { X = connectionPoint.X - ovgVertex.MarginToEdge, Y = connectionPoint.Y} }));
+                BiderectionalGraph.AddVerticesAndEdge(new Edge<PointWithDirection>(new PointWithDirection() { Point = new Point(connectionPoint.X, connectionPoint.Y) }, new PointWithDirection() { Point = new Point { X = connectionPoint.X - ovgVertex.MarginToEdge, Y = connectionPoint.Y } }));
 
         }
         private static bool IsLineHorizontal(Line line)
@@ -241,7 +225,7 @@ namespace GraphXOrthogonalEr.GeometryTools
             foreach (Edge<PointWithDirection> edge in allAjacenceEdges)
             {
                 var otherSideVertex = parentPoint.DireciontPoint.Point == edge.Source.Point ? edge.Target : edge.Source;
-                if ((parentPoint.ParentPoint == null || parentPoint.ParentPoint.DireciontPoint.Point != otherSideVertex.Point) 
+                if ((parentPoint.ParentPoint == null || parentPoint.ParentPoint.DireciontPoint.Point != otherSideVertex.Point)
                     && parentPoint.DireciontPoint.Point != otherSideVertex.Point && !neighbours.Contains(otherSideVertex))
                     neighbours.Add(otherSideVertex);
             }
@@ -260,18 +244,18 @@ namespace GraphXOrthogonalEr.GeometryTools
         {
             if (source == target)
                 return parentdir;
-            if(source.X == target.X)
+            if (source.X == target.X)
             {
-                if(target.Y > source.Y)
+                if (target.Y > source.Y)
                     return Direction.North;
                 if (target.Y < source.Y)
                     return Direction.South;
             }
-            if(source.Y == target.Y)
+            if (source.Y == target.Y)
             {
-                if(target.X > source.X)
+                if (target.X > source.X)
                     return Direction.East;
-                if(target.X < source.X)
+                if (target.X < source.X)
                     return Direction.West;
             }
             throw new Exception("Can't get Direction to points!");

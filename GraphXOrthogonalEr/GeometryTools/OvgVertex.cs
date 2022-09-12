@@ -10,14 +10,12 @@ namespace GraphXOrthogonalEr.GeometryTools
         where TEdge : class, IGraphXEdge<TVertex>
         where TVertex : class, IGraphXVertex
     {
-        public IGraphXVertex DataVertex { get; set; }
         public Point Position { get; }
         public double MarginToEdge { get; }
         public Rect SizeOfVertex { get; }
         public List<Line> HorizontalSegments { get; }
         public List<Line> VerticalSegments { get; }
         public Dictionary<TEdge, Point> ConnectionPoints { get; set; }
-
         public OvgVertex(Rect vertexSize, Point leftTopPoint, Point rightBottomPoint, double marginBetweenEdgeAndNode)
         {
             ConnectionPoints = new Dictionary<TEdge, Point>();
@@ -26,6 +24,7 @@ namespace GraphXOrthogonalEr.GeometryTools
             VerticalSegments = new List<Line>();
             HorizontalSegments = new List<Line>();
             MarginToEdge = marginBetweenEdgeAndNode;
+            
             // adding HorizontalSegments
             SetBordersToVertex(leftTopPoint, rightBottomPoint);
         }
@@ -70,15 +69,15 @@ namespace GraphXOrthogonalEr.GeometryTools
 
         public void AddSegmentByPoint(Point connectionPoint, Point leftTop, Point rightBottom)
         {
-            double topSide = Position.Y;
-            double bottomSide = Position.Y + SizeOfVertex.Height;
+            double bottomSide = Position.Y;
+            double topSide = Position.Y + SizeOfVertex.Height;
             double leftSide = Position.X;
             double rightSide = Position.X + SizeOfVertex.Width;
-            if (connectionPoint.Y == topSide)
+            if (connectionPoint.Y == bottomSide)
                 VerticalSegments.Add(new Line()
                 {
                     X1 = connectionPoint.X,
-                    Y1 = topSide,
+                    Y1 = bottomSide,
                     X2 = connectionPoint.X,
                     Y2 = leftTop.Y - MarginToEdge
                 });
@@ -90,11 +89,11 @@ namespace GraphXOrthogonalEr.GeometryTools
                     X2 = rightBottom.X + MarginToEdge,
                     Y2 = connectionPoint.Y
                 });
-            if (connectionPoint.Y == bottomSide)
+            if (connectionPoint.Y == topSide)
                 VerticalSegments.Add(new Line()
                 {
                     X1 = connectionPoint.X,
-                    Y1 = bottomSide,
+                    Y1 = topSide,
                     X2 = connectionPoint.X,
                     Y2 = rightBottom.Y + MarginToEdge
                 });
@@ -124,5 +123,5 @@ namespace GraphXOrthogonalEr.GeometryTools
             throw new System.Exception("Can't define direction");
         }
     }
-    
+
 }
