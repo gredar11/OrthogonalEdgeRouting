@@ -3,8 +3,6 @@ using GraphX.Common.Enums;
 using GraphX.Controls;
 using GraphX.Logic.Algorithms.LayoutAlgorithms;
 using GraphxOrtho.Models;
-using GraphxOrtho.Models.OrthogonalTools;
-using System.Collections;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
