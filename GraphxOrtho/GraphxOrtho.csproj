@@ -92,22 +92,11 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Models\AlgorithmTools\DebugHelper.cs" />
-    <Compile Include="Models\AlgorithmTools\GeometryAnalizator.cs" />
-    <Compile Include="Models\AlgorithmTools\OrthogonalVertex.cs" />
     <Compile Include="Models\DataEdge.cs" />
     <Compile Include="Models\DataVertex.cs" />
     <Compile Include="Models\GraphAreaExample .cs" />
     <Compile Include="Models\GraphExample.cs" />
     <Compile Include="Models\GXLogicCoreExample.cs" />
-    <Compile Include="Models\AlgorithmTools\PointWithDirection.cs" />
-    <Compile Include="Models\OrthogonalEdgeRoutingAlgorithm.cs" />
-    <Compile Include="Models\OrthogonalTools\GeometryAnalizator.cs" />
-    <Compile Include="Models\OrthogonalTools\OrthogonalVisibilityGraph.cs" />
-    <Compile Include="Models\OrthogonalTools\OvgVertex.cs" />
-    <Compile Include="Models\OrthogonalTools\PriorityAlgorithm.cs" />
-    <Compile Include="Models\OrthogonalTools\PriorityPoint.cs" />
-    <Compile Include="Models\OrthogonalTools\PriorityPointComparer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
