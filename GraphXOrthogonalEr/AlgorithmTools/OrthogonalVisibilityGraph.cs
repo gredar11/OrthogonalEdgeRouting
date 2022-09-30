@@ -24,7 +24,7 @@ namespace GraphXOrthogonalEr.AlgorithmTools
                 CutHorizontalSegments(vertex);
                 CutVerticalSegments(vertex);
             }
-            AddOvgToZoomControl();
+            ConstructOrthogonalVisibilityGraph();
         }
         public void CutHorizontalSegments(OvgVertex<TVertex, TEdge> currentVertex)
         {
@@ -128,7 +128,7 @@ namespace GraphXOrthogonalEr.AlgorithmTools
                 return new PointWithDirection() { Point = new Point(verticalSegment.X1, horizontalSegment.Y1) };
             return null;
         }
-        public void AddOvgToZoomControl()
+        public void ConstructOrthogonalVisibilityGraph()
         {
             List<Line> horizontalSegments = new List<Line>();
             List<Line> verticalSegments = new List<Line>();
@@ -169,7 +169,7 @@ namespace GraphXOrthogonalEr.AlgorithmTools
                     }
                 }
             }
-            // printing all edges of Ovg
+            // adding all elements to visibility graph
             foreach (var lineSegment in segmentsWithPoints)
             {
                 if (IsLineHorizontal(lineSegment.Key))
@@ -204,8 +204,6 @@ namespace GraphXOrthogonalEr.AlgorithmTools
                     AddConnectionSegment(vertex, connPoint);
                 }
             }
-            // ptinting all vertices of Ovg
-
         }
         public void AddConnectionSegment(OvgVertex<TVertex, TEdge> ovgVertex, Point connectionPoint)
         {
@@ -232,30 +230,35 @@ namespace GraphXOrthogonalEr.AlgorithmTools
         }
         public List<PriorityPoint> InitializeNeighbours(PriorityPoint parentPoint)
         {
-            // находим соседние ветви
+            // finding neighbours
             var outEdges = BiderectionalGraph.OutEdges(parentPoint.DireciontPoint);
             var inEdges = BiderectionalGraph.InEdges(parentPoint.DireciontPoint);
             var allAjacenceEdges = outEdges.Union(inEdges);
-            // добавляем узлы-соседей если они не были прошлыми родителями
+
             List<PointWithDirection> neighbours = new List<PointWithDirection>();
+
             foreach (Edge<PointWithDirection> edge in allAjacenceEdges)
             {
                 var otherSideVertex = parentPoint.DireciontPoint.Point == edge.Source.Point ? edge.Target : edge.Source;
-                if ((parentPoint.ParentPoint == null || parentPoint.ParentPoint.DireciontPoint.Point != otherSideVertex.Point) 
-                    && parentPoint.DireciontPoint.Point != otherSideVertex.Point && !neighbours.Contains(otherSideVertex))
+                if (OthersideVertexIsUnique(parentPoint, neighbours, otherSideVertex))
                     neighbours.Add(otherSideVertex);
             }
             List<PriorityPoint> neigrboursToReturn = new List<PriorityPoint>();
             foreach (var neighbour in neighbours)
             {
-                // по каждому узлу создаем узел приоритета.
                 PriorityPoint priorityPoint = new PriorityPoint(neighbour, parentPoint);
-                // для точки с направлением устанавливаем направление.
                 priorityPoint.DireciontPoint.Direction = GetDestinationPointDirection(parentPoint.DireciontPoint.Point, priorityPoint.DireciontPoint.Point, parentPoint.DireciontPoint.Direction);
                 neigrboursToReturn.Add(priorityPoint);
             }
             return neigrboursToReturn;
         }
+
+        private static bool OthersideVertexIsUnique(PriorityPoint parentPoint, List<PointWithDirection> neighbours, PointWithDirection otherSideVertex)
+        {
+            return (parentPoint.ParentPoint == null || parentPoint.ParentPoint.DireciontPoint.Point != otherSideVertex.Point)
+                                && parentPoint.DireciontPoint.Point != otherSideVertex.Point && !neighbours.Contains(otherSideVertex);
+        }
+
         public Direction GetDestinationPointDirection(Point source, Point target, Direction parentdir)
         {
             if (source == target)

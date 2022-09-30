@@ -99,24 +99,29 @@ namespace GraphXOrthogonalEr.AlgorithmTools
             target.SetConnectionEdges(leftTopPoint, rightBotPoint, edge);
         }
         private List<PriorityPoint> DrawOrthogonalEdge(OrthogonalEdgeRoutingAlgorithm<TVertex, TEdge> algorithmBaseClass, TEdge edge)
-        { 
-            var startOvgVertex = algorithmBaseClass.OvgVertices[edge.Source];
-            var endOvgVertex = algorithmBaseClass.OvgVertices[edge.Target];
-            var startPoint = startOvgVertex.ConnectionPoints[edge];
-            var endPoint = endOvgVertex.ConnectionPoints[edge];
-            var orthogonalVertices = algorithmBaseClass.OrthogonalVisibilityGraph.BiderectionalGraph.Vertices;
+        {
+            OvgVertex<TVertex, TEdge> startOvgVertex = algorithmBaseClass.OvgVertices[edge.Source];
+            OvgVertex<TVertex, TEdge> endOvgVertex = algorithmBaseClass.OvgVertices[edge.Target];
+
+            Point startPoint = startOvgVertex.ConnectionPoints[edge];
+            Point endPoint = endOvgVertex.ConnectionPoints[edge];
+
+            IEnumerable<PointWithDirection> orthogonalVertices = algorithmBaseClass.OrthogonalVisibilityGraph.BiderectionalGraph.Vertices;
             // initializing points with entrance/exit direction
-            var strartPointInAdjacecnyGraph = (from v in orthogonalVertices where v.Point == startPoint select v).FirstOrDefault();
+            PointWithDirection strartPointInAdjacecnyGraph = (from v in orthogonalVertices where v.Point == startPoint select v).FirstOrDefault();
             strartPointInAdjacecnyGraph.Direction = startOvgVertex.GetDirectionOfPoint(strartPointInAdjacecnyGraph.Point, true);
-            var endPointInAdjacecnyGraph = (from v in orthogonalVertices where v.Point == endPoint select v).FirstOrDefault();
+
+            PointWithDirection endPointInAdjacecnyGraph = (from v in orthogonalVertices where v.Point == endPoint select v).FirstOrDefault();
             endPointInAdjacecnyGraph.Direction = endOvgVertex.GetDirectionOfPoint(endPointInAdjacecnyGraph.Point, false);
 
             PriorityPoint start = new PriorityPoint(strartPointInAdjacecnyGraph, null);
             PriorityPoint end = new PriorityPoint(endPointInAdjacecnyGraph, null);
+
             PriorityAlgorithm<TVertex, TEdge> algorithm = new PriorityAlgorithm<TVertex, TEdge>(start, end, OrthogonalVisibilityGraph);
+            
             PriorityPoint.DistanceFactor = 1.0;
-            var path = algorithm.CalculatePath();
-            return path;
+
+            return algorithm.CalculatePath();
         }
     }
 }

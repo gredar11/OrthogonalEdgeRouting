@@ -241,52 +241,7 @@ namespace GraphxOrtho
             return;
         }
 
-        private void DrawOrthogonalEdge(OrthogonalEdgeRoutingAlgorithm<DataVertex, DataEdge> algorithmBaseClass, DataEdge edge)
-        {
-            var edgeToDraw = edge;
-            var startVertex = algorithmBaseClass.OvgVertices[edgeToDraw.Source];
-            var endVertex = algorithmBaseClass.OvgVertices[edgeToDraw.Target];
-            var startPoint = startVertex.ConnectionPoints[edgeToDraw];
-            var endPoint = endVertex.ConnectionPoints[edgeToDraw];
-            var orthogonalVertices = algorithmBaseClass.OrthogonalVisibilityGraph.BiderectionalGraph.Vertices;
-
-            var strartPointInAdjacecnyGraph = (from v in orthogonalVertices where v.Point == startPoint select v).FirstOrDefault();
-            strartPointInAdjacecnyGraph.Direction = startVertex.GetDirectionOfPoint(strartPointInAdjacecnyGraph.Point, true);
-            var endPointInAdjacecnyGraph = (from v in orthogonalVertices where v.Point == endPoint select v).FirstOrDefault();
-            endPointInAdjacecnyGraph.Direction = endVertex.GetDirectionOfPoint(endPointInAdjacecnyGraph.Point, false);
-
-            PriorityPoint start = new PriorityPoint(strartPointInAdjacecnyGraph, null);
-            PriorityPoint end = new PriorityPoint(endPointInAdjacecnyGraph, null);
-            PriorityAlgorithm<DataVertex, DataEdge> algorithm = new PriorityAlgorithm<DataVertex, DataEdge>(start, end, algorithmBaseClass.OrthogonalVisibilityGraph);
-            PriorityPoint.DistanceFactor = 1.0;
-            //var path = algorithm.CalculatePath();
-            //for (int i = 1; i < path.Count; i++)
-            //{
-            //    var lineToAdd = new Line()
-            //    {
-            //        X1 = path[i - 1].DireciontPoint.Point.X,
-            //        Y1 = path[i - 1].DireciontPoint.Point.Y,
-            //        X2 = path[i].DireciontPoint.Point.X,
-            //        Y2 = path[i].DireciontPoint.Point.Y,
-            //        Stroke = Brushes.Black,
-            //        StrokeThickness = 0.8
-            //    };
-
-            //    Area.AddCustomChildControl(lineToAdd);
-            //}
-        }
-
-        public class PointWdComparer : IComparer
-        {
-            public int Compare(object x, object y)
-            {
-                throw new System.NotImplementedException();
-            }
-        }
-        private static bool IsLineHorizontal(Line line)
-        {
-            return line.Y1 == line.Y2;
-        }
+        
         
     }
     
