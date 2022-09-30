@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{BA08E120-BCB5-4A84-9816-17053CADF4CA}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>GraphxOrtho</RootNamespace>
-    <AssemblyName>GraphxOrtho</AssemblyName>
+    <RootNamespace>GraphxOrthoSample</RootNamespace>
+    <AssemblyName>GraphxOrthoSample</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
