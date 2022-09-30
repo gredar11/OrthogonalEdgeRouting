@@ -70,9 +70,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\GraphxOrtho\GraphxOrtho.csproj">
+    <ProjectReference Include="..\GraphxOrtho\GraphxOrthoSample.csproj">
       <Project>{ba08e120-bcb5-4a84-9816-17053cadf4ca}</Project>
-      <Name>GraphxOrtho</Name>
+      <Name>GraphxOrthoSample</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />

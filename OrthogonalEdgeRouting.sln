@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.1.32421.90
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraphxOrtho", "GraphxOrtho\GraphxOrtho.csproj", "{BA08E120-BCB5-4A84-9816-17053CADF4CA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraphxOrthoSample", "GraphxOrtho\GraphxOrthoSample.csproj", "{BA08E120-BCB5-4A84-9816-17053CADF4CA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{5471E54C-5FFC-4D3D-A3C3-8FA9238006F0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraphXOrthogonalEr", "GraphXOrthogonalEr\GraphXOrthogonalEr.csproj", "{D299D3F3-9D24-4846-AB05-DA8037418E2F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphXOrthogonalEr", "GraphXOrthogonalEr\GraphXOrthogonalEr.csproj", "{D299D3F3-9D24-4846-AB05-DA8037418E2F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
