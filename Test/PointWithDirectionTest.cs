@@ -1,7 +1,6 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using GraphxOrtho.Models.AlgorithmTools;
-using GraphX.Measure;
+﻿using GraphX.Measure;
+using GraphXOrthogonalEr.AlgorithmTools;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Test
 {
